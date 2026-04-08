@@ -1,0 +1,458 @@
+{
+	"id": "cda0833a-f282-4997-8aef-ca8a00140588",
+	"name": "Finance App API Tests",
+	"timestamp": "2026-03-08T13:53:04.444Z",
+	"collection_id": "41954468-3a2f9603-637d-451d-b24e-f7fb1ece71e4",
+	"folder_id": 0,
+	"environment_id": "41954468-868fd624-72b1-4243-8050-9ae8b320aefe",
+	"totalPass": 2,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-03-08T13:53:01.273Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "b9a80d9d-089d-48e7-88c9-a1ad40c480fe",
+			"name": "01 - Health Check",
+			"url": "http://127.0.0.1:8000/health",
+			"time": 131,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				131
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4d6889ed-ddea-4cb3-a1af-66524a081d84",
+			"name": "02 - Register User",
+			"url": "http://127.0.0.1:8000/api/v1/auth/register",
+			"time": 272,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Register returns 2xx": true
+			},
+			"testPassFailCounts": {
+				"Register returns 2xx": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				272
+			],
+			"allTests": [
+				{
+					"Register returns 2xx": true
+				}
+			]
+		},
+		{
+			"id": "1958e64c-2582-49d9-8834-b556643bf7de",
+			"name": "03 - Login (OAuth2 Password Form)",
+			"url": "http://127.0.0.1:8000/api/v1/auth/login",
+			"time": 65,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Login returns 200": true
+			},
+			"testPassFailCounts": {
+				"Login returns 200": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				65
+			],
+			"allTests": [
+				{
+					"Login returns 200": true
+				}
+			]
+		},
+		{
+			"id": "2a3eec22-4b72-4314-b5e6-8904642fa355",
+			"name": "04 - Get Profile",
+			"url": "http://127.0.0.1:8000/api/v1/finance/profile",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				18
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1f48fc3e-3109-47d2-abd7-3df1c14cb8b9",
+			"name": "05 - Add Income",
+			"url": "http://127.0.0.1:8000/api/v1/finance/income",
+			"time": 37,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				37
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "373d698f-4aa3-4348-8b88-e7bdfaceba72",
+			"name": "06 - List Income",
+			"url": "http://127.0.0.1:8000/api/v1/finance/income",
+			"time": 13,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				13
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "e31462bb-8e1f-4ddc-b9be-18c481bd657e",
+			"name": "07 - Add Expense",
+			"url": "http://127.0.0.1:8000/api/v1/finance/expenses",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				19
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "43bf4f0f-1e97-43d4-873c-fd574e935b39",
+			"name": "08 - List Expenses",
+			"url": "http://127.0.0.1:8000/api/v1/finance/expenses",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				14
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c3f522a9-f176-4a29-b42d-f9a0c6b13019",
+			"name": "09 - Dashboard",
+			"url": "http://127.0.0.1:8000/api/v1/finance/dashboard",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				19
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "9a696388-d701-41e2-91f9-c3a39007f205",
+			"name": "10 - Create Asset",
+			"url": "http://127.0.0.1:8000/api/v1/assets",
+			"time": 70,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				70
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f22fa5ca-0956-41fd-b1f4-40818d14665f",
+			"name": "11 - List Assets",
+			"url": "http://127.0.0.1:8000/api/v1/assets",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				17
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "388b2bd8-5a2b-40d4-b7a4-b98810e8c03d",
+			"name": "12 - Create Liability",
+			"url": "http://127.0.0.1:8000/api/v1/liabilities",
+			"time": 58,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				58
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "5b408e24-6a9d-474c-839d-5ab5396d3125",
+			"name": "13 - List Liabilities",
+			"url": "http://127.0.0.1:8000/api/v1/liabilities",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				16
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c8f24755-43ef-405f-9f06-480fb7e10e33",
+			"name": "14 - Create Category",
+			"url": "http://127.0.0.1:8000/api/v1/categories",
+			"time": 31,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				31
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "16057dc4-421b-49a4-adcf-c5e4e7421072",
+			"name": "15 - List Categories",
+			"url": "http://127.0.0.1:8000/api/v1/categories",
+			"time": 48,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				48
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "eff80fba-5ada-4488-a1b3-b1c1443529d3",
+			"name": "16 - Create Budget",
+			"url": "http://127.0.0.1:8000/api/v1/budgets",
+			"time": 35,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				35
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8dc2172f-e29b-4225-aa7f-94a6fa9a0309",
+			"name": "17 - List Budgets",
+			"url": "http://127.0.0.1:8000/api/v1/budgets",
+			"time": 19,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				19
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "72dbc2d1-3b2a-460a-8033-77972c96fdfa",
+			"name": "18 - Create Subscription",
+			"url": "http://127.0.0.1:8000/api/v1/subscriptions",
+			"time": 32,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				32
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "30d3eee2-b579-4b49-92af-c07114c70e90",
+			"name": "19 - List Subscriptions",
+			"url": "http://127.0.0.1:8000/api/v1/subscriptions",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				10
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 924,
+	"collection": {
+		"requests": [
+			{
+				"id": "b9a80d9d-089d-48e7-88c9-a1ad40c480fe",
+				"method": "GET"
+			},
+			{
+				"id": "4d6889ed-ddea-4cb3-a1af-66524a081d84",
+				"method": "POST"
+			},
+			{
+				"id": "1958e64c-2582-49d9-8834-b556643bf7de",
+				"method": "POST"
+			},
+			{
+				"id": "2a3eec22-4b72-4314-b5e6-8904642fa355",
+				"method": "GET"
+			},
+			{
+				"id": "1f48fc3e-3109-47d2-abd7-3df1c14cb8b9",
+				"method": "POST"
+			},
+			{
+				"id": "373d698f-4aa3-4348-8b88-e7bdfaceba72",
+				"method": "GET"
+			},
+			{
+				"id": "e31462bb-8e1f-4ddc-b9be-18c481bd657e",
+				"method": "POST"
+			},
+			{
+				"id": "43bf4f0f-1e97-43d4-873c-fd574e935b39",
+				"method": "GET"
+			},
+			{
+				"id": "c3f522a9-f176-4a29-b42d-f9a0c6b13019",
+				"method": "GET"
+			},
+			{
+				"id": "9a696388-d701-41e2-91f9-c3a39007f205",
+				"method": "POST"
+			},
+			{
+				"id": "f22fa5ca-0956-41fd-b1f4-40818d14665f",
+				"method": "GET"
+			},
+			{
+				"id": "388b2bd8-5a2b-40d4-b7a4-b98810e8c03d",
+				"method": "POST"
+			},
+			{
+				"id": "5b408e24-6a9d-474c-839d-5ab5396d3125",
+				"method": "GET"
+			},
+			{
+				"id": "c8f24755-43ef-405f-9f06-480fb7e10e33",
+				"method": "POST"
+			},
+			{
+				"id": "16057dc4-421b-49a4-adcf-c5e4e7421072",
+				"method": "GET"
+			},
+			{
+				"id": "eff80fba-5ada-4488-a1b3-b1c1443529d3",
+				"method": "POST"
+			},
+			{
+				"id": "8dc2172f-e29b-4225-aa7f-94a6fa9a0309",
+				"method": "GET"
+			},
+			{
+				"id": "72dbc2d1-3b2a-460a-8033-77972c96fdfa",
+				"method": "POST"
+			},
+			{
+				"id": "30d3eee2-b579-4b49-92af-c07114c70e90",
+				"method": "GET"
+			}
+		]
+	}
+}

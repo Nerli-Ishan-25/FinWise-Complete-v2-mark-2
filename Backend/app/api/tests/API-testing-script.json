@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "Finance App API Tests",
+    "_postman_id": "8e6f0e5c-1111-2222-3333-444455556666",
+    "description": "Automated tests for FastAPI finance backend (auth, finance, assets, liabilities, budgets, categories, subscriptions).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 - Register User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{test_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "register"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Register returns 2xx\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Login (OAuth2 Password Form)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "username", "value": "{{test_email}}", "type": "text" },
+            { "key": "password", "value": "{{test_password}}", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login returns 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var json = pm.response.json();",
+              "pm.environment.set(\"access_token\", json.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/profile",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "profile"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 - Add Income",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 5000,\n  \"source\": \"Salary\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/income",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "income"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 - List Income",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/income",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "income"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 - Add Expense",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 1000,\n  \"category\": \"Groceries\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/expenses",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "expenses"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "08 - List Expenses",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/expenses",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "expenses"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "09 - Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/finance/dashboard",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "finance", "dashboard"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10 - Create Asset",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Savings Account\",\n  \"type\": \"bank\",\n  \"value\": 3000\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/assets",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "assets"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11 - List Assets",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/assets",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "assets"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12 - Create Liability",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Credit Card Debt\",\n  \"type\": \"credit_card\",\n  \"amount\": 5000,\n  \"interest_rate\": 18.5\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/liabilities",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "liabilities"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13 - List Liabilities",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/liabilities",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "liabilities"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14 - Create Category",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Groceries\",\n  \"type\": \"expense\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/categories",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "categories"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "15 - List Categories",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/categories",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "categories"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "16 - Create Budget",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"category_id\": 1,\n  \"budget_amount\": 500,\n  \"month\": 1,\n  \"year\": 2026\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/budgets",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "budgets"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "17 - List Budgets",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/budgets",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "budgets"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "18 - Create Subscription",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Netflix\",\n  \"amount\": 15.99,\n  \"billing_cycle\": \"monthly\",\n  \"next_payment_date\": \"2026-04-01\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/subscriptions",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "subscriptions"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "19 - List Subscriptions",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/subscriptions",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "subscriptions"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "test_name",
+      "value": "Test User"
+    },
+    {
+      "key": "test_email",
+      "value": "testuser@example.com"
+    },
+    {
+      "key": "test_password",
+      "value": "Password123!"
+    }
+  ]
+}
