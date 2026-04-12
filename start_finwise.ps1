@@ -21,9 +21,9 @@ if ($Port5173) {
 
 # 2. Setup Backend
 Write-Host "`n📦 Preparing Backend..." -ForegroundColor Cyan
-Set-Location "d:\FinWise-Complete-v2-mark-2\Backend"
+Set-Location "$PSScriptRoot\Backend"
 if (-Not (Test-Path ".\venv")) {
-    Write-Host "❌ Virtual environment not found in d:\FinWise-Complete-v2-mark-2\Backend\venv" -ForegroundColor Red
+    Write-Host "❌ Virtual environment not found in $PSScriptRoot\Backend\venv" -ForegroundColor Red
     return
 }
 
@@ -33,15 +33,15 @@ Write-Host "🛠  Ensuring Pydantic email-validator is present..." -ForegroundCo
 
 # Launch Backend in a new window
 Write-Host "⚡ Launching Backend on http://localhost:8000..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'd:\FinWise-Complete-v2-mark-2\Backend'; .\venv\Scripts\python.exe -m app.main"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\Backend'; .\venv\Scripts\python.exe -m app.main"
 
 # 3. Setup Frontend
 Write-Host "`n🎨 Preparing Frontend..." -ForegroundColor Cyan
-Set-Location "d:\FinWise-Complete-v2-mark-2\finwise-frontend"
+Set-Location "$PSScriptRoot\finwise-frontend"
 
 # Launch Frontend in a new window
 Write-Host "⚡ Launching Frontend on http://localhost:5173..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'd:\FinWise-Complete-v2-mark-2\finwise-frontend'; npx vite"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\finwise-frontend'; npx vite"
 
 # 4. Handoff
 Write-Host "`n✨ FinWise is coming alive!" -ForegroundColor Yellow
