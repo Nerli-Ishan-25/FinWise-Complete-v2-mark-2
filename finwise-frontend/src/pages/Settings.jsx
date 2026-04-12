@@ -1,16 +1,17 @@
 import { useState } from "react"
 import { User, Lock, Globe, Save } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
+import { useFinance } from "../context/FinanceContext"
 import { authAPI } from "../services/api"
 
 const CURRENCIES = ["USD ($)", "EUR (€)", "GBP (£)", "INR (₹)", "JPY (¥)", "CAD ($)", "AUD ($)"]
 
 export default function Settings() {
   const { user } = useAuth()
+  const { currency, setCurrency } = useFinance()
 
   const [profile, setProfile] = useState({ name: user?.name || "", email: user?.email || "" })
   const [password, setPassword] = useState({ current: "", newPass: "", confirm: "" })
-  const [currency, setCurrency] = useState(localStorage.getItem("currency") || "USD ($)")
   const [savingProfile,  setSavingProfile]  = useState(false)
   const [profileMsg,     setProfileMsg]     = useState(null)
   const [passwordMsg,    setPasswordMsg]    = useState(null)
@@ -31,7 +32,6 @@ export default function Settings() {
   }
 
   function handleSaveCurrency() {
-    localStorage.setItem("currency", currency)
     setProfileMsg("Preferences saved!")
     setTimeout(() => setProfileMsg(null), 3000)
   }

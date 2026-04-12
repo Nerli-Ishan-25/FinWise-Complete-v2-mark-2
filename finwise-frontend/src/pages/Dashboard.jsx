@@ -11,13 +11,13 @@ import TransactionItem from "../components/TransactionItem"
 import Modal from "../components/Modal"
 import { useFinance } from "../context/FinanceContext"
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload?.length) return null
   return (
     <div className="custom-tooltip">
       <div className="label">{label}</div>
       {payload.map((p, i) => (
-        <div key={i} className="val" style={{ color: p.color }}>${p.value?.toLocaleString()}</div>
+        <div key={i} className="val" style={{ color: p.color }}>{formatter ? formatter(p.value) : "$" + p.value?.toLocaleString()}</div>
       ))}
     </div>
   )
@@ -29,7 +29,7 @@ export default function Dashboard() {
   const {
     transactions, addTransaction, netWorth, monthlyIncome, monthlyExpenses,
     savingsRate, totalAssets, totalLiabilities, loading, loadDashboard, loadBudgets,
-    monthlyTrends, spendingByCategory, netWorthHistory,
+    monthlyTrends, spendingByCategory, netWorthHistory, formatCurrency, currencySymbol
   } = useFinance()
 
   const [showModal, setShowModal] = useState(false)
@@ -80,13 +80,13 @@ export default function Dashboard() {
 
       <div className="stats-grid">
         <StatCard title="Net Worth"
-          value={(netWorth < 0 ? "-$" : "$") + Math.abs(netWorth).toLocaleString()}
-          change="+$2,200 this month" changeUp={netWorth >= 0}
+          value={formatCurrency(netWorth)}
+          change={"+" + formatCurrency(2200) + " this month"} changeUp={netWorth >= 0}
           icon={<TrendingUp size={15} color={netWorth >= 0 ? "#00e676" : "#ff5252"}/>}
           iconBg={netWorth >= 0 ? "rgba(0,230,118,0.1)" : "rgba(255,82,82,0.1)"} />
-        <StatCard title="Monthly Income"   value={"$" + monthlyIncome.toLocaleString()}        sub="This month's income"                    icon={<DollarSign size={15} color="#448aff"/>} iconBg="rgba(68,138,255,0.1)" />
-        <StatCard title="Monthly Expenses" value={"$" + monthlyExpenses.toFixed(0)}            change={Math.round((monthlyExpenses / (monthlyIncome||1)) * 100) + "% of income"} changeUp={false} icon={<ShoppingCart size={15} color="#ff5252"/>} iconBg="rgba(255,82,82,0.1)" />
-        <StatCard title="Savings Rate"     value={savingsRate.toFixed(1) + "%"}                change={"$" + (monthlyIncome - monthlyExpenses).toLocaleString() + " saved"} changeUp={true} icon={<PiggyBank size={15} color="#ffab40"/>} iconBg="rgba(255,171,64,0.1)" />
+        <StatCard title="Monthly Income"   value={formatCurrency(monthlyIncome)}        sub="This month's income"                    icon={<DollarSign size={15} color="#448aff"/>} iconBg="rgba(68,138,255,0.1)" />
+        <StatCard title="Monthly Expenses" value={formatCurrency(monthlyExpenses)}            change={Math.round((monthlyExpenses / (monthlyIncome||1)) * 100) + "% of income"} changeUp={false} icon={<ShoppingCart size={15} color="#ff5252"/>} iconBg="rgba(255,82,82,0.1)" />
+        <StatCard title="Savings Rate"     value={savingsRate.toFixed(1) + "%"}                change={formatCurrency(monthlyIncome - monthlyExpenses) + " saved"} changeUp={true} icon={<PiggyBank size={15} color="#ffab40"/>} iconBg="rgba(255,171,64,0.1)" />
       </div>
 
       <div className="grid-2-1" style={{ marginBottom: 20 }}>
@@ -104,8 +104,8 @@ export default function Dashboard() {
                 </linearGradient>
               </defs>
               <XAxis dataKey="m" axisLine={false} tickLine={false}/>
-              <YAxis axisLine={false} tickLine={false} tickFormatter={v=>`$${v/1000}k`}/>
-              <Tooltip content={<CustomTooltip />}/>
+              <YAxis axisLine={false} tickLine={false} tickFormatter={v=>formatCurrency(v, true)}/>
+              <Tooltip content={<CustomTooltip formatter={formatCurrency} />}/>
               <Area type="monotone" dataKey="income"  stroke="#00e676" strokeWidth={2} fill="url(#gi)"/>
               <Area type="monotone" dataKey="expense" stroke="#ff5252" strokeWidth={2} fill="url(#ge)"/>
             </AreaChart>
@@ -123,7 +123,7 @@ export default function Dashboard() {
               <Pie data={spendingByCategory} cx="50%" cy="50%" innerRadius={55} outerRadius={75} dataKey="value" paddingAngle={2}>
                 {spendingByCategory.map((e,i)=><Cell key={i} fill={e.color}/>)}
               </Pie>
-              <Tooltip formatter={v=>"$"+v}/>
+              <Tooltip formatter={v=>formatCurrency(v)}/>
             </PieChart>
           </ResponsiveContainer>
           {spendingByCategory.length === 0 && (
@@ -148,19 +148,19 @@ export default function Dashboard() {
           </div>
           <div style={{display:"flex",gap:28,marginBottom:16}}>
             <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Assets</div>
-              <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--green)"}}>${totalAssets.toLocaleString()}</div></div>
+              <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--green)"}}>{formatCurrency(totalAssets)}</div></div>
             <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Debt</div>
-              <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--red)"}}>${totalLiabilities.toLocaleString()}</div></div>
+              <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--red)"}}>{formatCurrency(totalLiabilities)}</div></div>
             <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Net Worth</div>
               <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color: netWorth < 0 ? "var(--red)" : "var(--text-primary)"}}>
-                {netWorth < 0 ? "-$" : "$"}{Math.abs(netWorth).toLocaleString()}
+                {formatCurrency(netWorth)}
               </div></div>
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <LineChart data={netWorthHistory} margin={{top:0,right:0,left:-20,bottom:0}}>
               <XAxis dataKey="m" axisLine={false} tickLine={false}/>
-              <YAxis axisLine={false} tickLine={false} tickFormatter={v=>`$${v/1000}k`}/>
-              <Tooltip formatter={v=>"$"+v.toLocaleString()}/>
+              <YAxis axisLine={false} tickLine={false} tickFormatter={v=>formatCurrency(v, true)}/>
+              <Tooltip formatter={v=>formatCurrency(v)}/>
               <Line type="monotone" dataKey="val" stroke="#00e676" strokeWidth={2.5} dot={false}/>
             </LineChart>
           </ResponsiveContainer>
@@ -194,7 +194,7 @@ export default function Dashboard() {
               <input className="input-field" placeholder="e.g. Grocery Store" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}/>
             </div>
             <div className="input-group">
-              <label>Amount ($)</label>
+              <label>Amount ({currencySymbol})</label>
               <input className="input-field" type="number" placeholder="0.00" value={form.amount} onChange={e=>setForm(f=>({...f,amount:e.target.value}))}/>
             </div>
             <div className="input-group">
