@@ -23,7 +23,7 @@ export function FinanceProvider({ children }) {
   const [insights, setInsights] = useState(null)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)   // { message, type }
-  const [currency, setCurrencyState] = useState(localStorage.getItem("currency") || "USD ($)")
+  const [currency, setCurrencyState] = useState(localStorage.getItem("currency") || "INR (₹)")
 
   const setCurrency = useCallback((newCurrency) => {
     localStorage.setItem("currency", newCurrency)

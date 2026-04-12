@@ -22,12 +22,13 @@ export default function Sidebar() {
   const navigate              = useNavigate()
 
   function handleLogout() { logout(); navigate("/login") }
-  const fmt = (n) => "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0 })
+  const { formatCurrency, currencySymbol } = useFinance()
+  const fmt = (n) => formatCurrency(n)
 
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="logo-icon">$</div>
+        <div className="logo-icon">{currencySymbol}</div>
         <div className="logo-text">
           <h2>FinWise</h2>
           <p>AI Finance</p>

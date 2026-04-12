@@ -12,7 +12,7 @@ const CATS = ["All","Food","Subscriptions","Income","Transport","Health","Entert
 const CATEGORY_ICONS = { Food:"🛒", Subscriptions:"📺", Income:"💼", Transport:"🚗", Health:"💪", Housing:"🏠", Entertainment:"🎬", Other:"💳" }
 
 export default function Expenses() {
-  const { transactions, addTransaction, deleteTransaction, monthlyTrends, spendingByCategory } = useFinance()
+  const { transactions, addTransaction, deleteTransaction, monthlyTrends, spendingByCategory, formatCurrency, currencySymbol } = useFinance()
   const [activeFilter, setActiveFilter] = useState("All")
   const [showModal, setShowModal]       = useState(false)
   const [saving, setSaving]             = useState(false)
@@ -55,8 +55,8 @@ export default function Expenses() {
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={monthlyTrends} barGap={4} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <XAxis dataKey="m" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} tickFormatter={v => `$${v/1000}k`} />
-              <Tooltip formatter={v => "$" + v.toLocaleString()} />
+              <YAxis axisLine={false} tickLine={false} tickFormatter={v => formatCurrency(v, true)} />
+              <Tooltip formatter={v => formatCurrency(v)} />
               <Bar dataKey="income"  fill="#00e676" radius={[4,4,0,0]} />
               <Bar dataKey="expense" fill="#ff5252" radius={[4,4,0,0]} />
             </BarChart>
@@ -74,7 +74,7 @@ export default function Expenses() {
               <Pie data={spendingByCategory} cx="50%" cy="50%" outerRadius={72} dataKey="value" paddingAngle={2}>
                 {spendingByCategory.map((e, i) => <Cell key={i} fill={e.color} />)}
               </Pie>
-              <Tooltip formatter={v => "$" + v} />
+              <Tooltip formatter={v => formatCurrency(v)} />
             </PieChart>
           </ResponsiveContainer>
           {spendingByCategory.length === 0 && (
@@ -87,7 +87,7 @@ export default function Expenses() {
                   <span className="dot" style={{ background: s.color }} />
                   <span style={{ color: "var(--text-secondary)" }}>{s.name}</span>
                 </div>
-                <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>${s.value}</span>
+                <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{formatCurrency(s.value)}</span>
               </div>
             ))}
           </div>
@@ -125,7 +125,7 @@ export default function Expenses() {
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
             </div>
             <div className="input-group">
-              <label>Amount ($)</label>
+              <label>Amount ({currencySymbol})</label>
               <input className="input-field" type="number" placeholder="0.00" value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
             </div>

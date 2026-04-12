@@ -12,7 +12,7 @@ export default function NetWorth() {
   const {
     assets, liabilities, totalAssets, totalLiabilities, netWorth,
     addAsset, deleteAsset, updateAsset,
-    addLiability, deleteLiability, updateLiability,
+    addLiability, deleteLiability, updateLiability, formatCurrency, currencySymbol
   } = useFinance()
 
   const [showAssetModal,     setShowAssetModal]     = useState(false)
@@ -67,21 +67,21 @@ export default function NetWorth() {
           <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>What you own</div>
           <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Total Assets</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--green)" }}>
-            ${totalAssets.toLocaleString()}
+            {formatCurrency(totalAssets)}
           </div>
         </div>
         <div className="card">
           <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>What you owe</div>
           <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Total Liabilities</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--red)" }}>
-            ${totalLiabilities.toLocaleString()}
+            {formatCurrency(totalLiabilities)}
           </div>
         </div>
         <div className="card">
           <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Your wealth</div>
           <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Net Worth</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: netWorth < 0 ? "var(--red)" : "var(--green)" }}>
-            {netWorth < 0 ? "-$" : "$"}{Math.abs(netWorth).toLocaleString()}
+            {formatCurrency(netWorth)}
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function NetWorth() {
       {netWorth < 0 && (
         <div className="alert-bar danger" style={{ marginBottom: 16 }}>
           ⚠️ Your liabilities exceed your assets. Net Worth is{" "}
-          <strong>-${Math.abs(netWorth).toLocaleString()}</strong>. Focus on
+          <strong>{formatCurrency(netWorth)}</strong>. Focus on
           paying down debt to restore positive net worth.
         </div>
       )}
@@ -104,7 +104,7 @@ export default function NetWorth() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={65} outerRadius={95} dataKey="value" paddingAngle={3}>
                 {pieData.map((e, i) => <Cell key={i} fill={e.color} />)}
               </Pie>
-              <Tooltip formatter={(v) => "$" + v.toLocaleString()} />
+              <Tooltip formatter={(v) => formatCurrency(v)} />
             </PieChart>
           </ResponsiveContainer>
           {pieData.length === 0 && (
@@ -116,7 +116,7 @@ export default function NetWorth() {
                 <div className="legend-label">
                   <span className="dot" style={{ background: d.color }} />{d.name}
                 </div>
-                <div className="legend-val">${d.value.toLocaleString()}</div>
+                <div className="legend-val">{formatCurrency(d.value)}</div>
               </div>
             ))}
           </div>
@@ -138,7 +138,7 @@ export default function NetWorth() {
                   <div className="tx-name">{a.name}</div>
                   <div className="tx-sub">{a.type}</div>
                 </div>
-                <span className="tx-amount income">${a.value.toLocaleString()}</span>
+                <span className="tx-amount income">{formatCurrency(a.value)}</span>
                 <button className="btn-icon" onClick={() => setEditingAsset({ ...a })} style={{ marginLeft: 6 }}>
                   <Edit2 size={12} />
                 </button>
@@ -169,12 +169,12 @@ export default function NetWorth() {
                     {l.interest_rate}% APR
                     {monthlyInterest > 0 && (
                       <span style={{ marginLeft: 8, color: "var(--red)", fontSize: 10 }}>
-                        → ${monthlyInterest.toFixed(2)}/mo interest
+                        → {formatCurrency(monthlyInterest)}/mo interest
                       </span>
                     )}
                   </div>
                 </div>
-                <span className="tx-amount expense">-${l.amount.toLocaleString()}</span>
+                <span className="tx-amount expense">-{formatCurrency(l.amount)}</span>
                 <button className="btn-icon" onClick={() => setEditingLiability({ ...l })} style={{ marginLeft: 6 }}>
                   <Edit2 size={12} />
                 </button>
@@ -204,7 +204,7 @@ export default function NetWorth() {
               </select>
             </div>
             <div className="input-group">
-              <label>Value ($)</label>
+              <label>Value ({currencySymbol})</label>
               <input className="input-field" type="number" placeholder="0" value={assetForm.value}
                 onChange={e => setAssetForm(f => ({ ...f, value: e.target.value }))} />
             </div>
@@ -233,7 +233,7 @@ export default function NetWorth() {
               </select>
             </div>
             <div className="input-group">
-              <label>Value ($)</label>
+              <label>Value ({currencySymbol})</label>
               <input className="input-field" type="number" value={editingAsset.value}
                 onChange={e => setEditingAsset(a => ({ ...a, value: e.target.value }))} />
             </div>
@@ -257,7 +257,7 @@ export default function NetWorth() {
                 onChange={e => setDebtForm(f => ({ ...f, name: e.target.value }))} />
             </div>
             <div className="input-group">
-              <label>Amount ($)</label>
+              <label>Amount ({currencySymbol})</label>
               <input className="input-field" type="number" placeholder="0" value={debtForm.amount}
                 onChange={e => setDebtForm(f => ({ ...f, amount: e.target.value }))} />
             </div>
@@ -284,7 +284,7 @@ export default function NetWorth() {
                 onChange={e => setEditingLiability(l => ({ ...l, name: e.target.value }))} />
             </div>
             <div className="input-group">
-              <label>Amount ($)</label>
+              <label>Amount ({currencySymbol})</label>
               <input className="input-field" type="number" value={editingLiability.amount}
                 onChange={e => setEditingLiability(l => ({ ...l, amount: e.target.value }))} />
             </div>

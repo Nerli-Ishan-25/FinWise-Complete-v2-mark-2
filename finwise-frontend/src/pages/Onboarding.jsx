@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { useFinance } from "../context/FinanceContext"
 import { 
   Target, 
   Wallet, 
@@ -16,6 +17,7 @@ import {
 export default function Onboarding() {
   const [step, setStep] = useState(1)
   const { user, completeOnboarding, loading, error } = useAuth()
+  const { formatCurrency, currencySymbol } = useFinance()
   const navigate = useNavigate()
 
   const [onboardingData, setOnboardingData] = useState({
@@ -160,7 +162,7 @@ export default function Onboarding() {
             <div style={{ marginBottom: 24, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {onboardingData.assets.map((a, i) => (
                 <div key={i} className="badge badge-green" style={{ padding: "8px 12px", gap: 8 }}>
-                  {a.name}: ${a.value}
+                  {a.name}: {formatCurrency(a.value)}
                   <Trash2 size={14} style={{ cursor: "pointer" }} onClick={() => removeItem("assets", i)} />
                 </div>
               ))}
@@ -177,7 +179,7 @@ export default function Onboarding() {
                 />
               </div>
               <div className="input-group">
-                <label>Value ($)</label>
+                <label>Value ({currencySymbol})</label>
                 <input 
                   className="input-field" 
                   type="number" 
@@ -223,7 +225,7 @@ export default function Onboarding() {
             <div style={{ marginBottom: 24, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {onboardingData.liabilities.map((l, i) => (
                 <div key={i} className="badge badge-red" style={{ padding: "8px 12px", gap: 8 }}>
-                  {l.name}: ${l.amount} ({l.interest_rate}%)
+                  {l.name}: {formatCurrency(l.amount)} ({l.interest_rate}%)
                   <Trash2 size={14} style={{ cursor: "pointer" }} onClick={() => removeItem("liabilities", i)} />
                 </div>
               ))}
@@ -240,7 +242,7 @@ export default function Onboarding() {
                 />
               </div>
               <div className="input-group">
-                <label>Amount Due ($)</label>
+                <label>Amount Due ({currencySymbol})</label>
                 <input 
                   className="input-field" 
                   type="number" 
@@ -283,7 +285,7 @@ export default function Onboarding() {
             <div style={{ marginBottom: 24, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {onboardingData.income.map((inc, i) => (
                 <div key={i} className="badge badge-blue" style={{ padding: "8px 12px", gap: 8 }}>
-                  {inc.source}: ${inc.amount}
+                  {inc.source}: {formatCurrency(inc.amount)}
                   <Trash2 size={14} style={{ cursor: "pointer" }} onClick={() => removeItem("income", i)} />
                 </div>
               ))}
@@ -300,7 +302,7 @@ export default function Onboarding() {
                 />
               </div>
               <div className="input-group span-2">
-                <label>Amount ($)</label>
+                <label>Amount ({currencySymbol})</label>
                 <input 
                   className="input-field" 
                   type="number" 
@@ -360,7 +362,7 @@ export default function Onboarding() {
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>Monthly Income:</span>
                 <span style={{ color: "var(--green)", fontWeight: 700 }}>
-                  ${onboardingData.income.reduce((acc, curr) => acc + Number(curr.amount), 0).toLocaleString()}
+                  {formatCurrency(onboardingData.income.reduce((acc, curr) => acc + Number(curr.amount), 0))}
                 </span>
               </div>
             </div>

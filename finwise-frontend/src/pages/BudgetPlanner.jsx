@@ -31,6 +31,7 @@ const DEMO_BUDGET = [
 ]
 
 function BudgetCard({ item, isDemo, onDelete, onEdit }) {
+  const { formatCurrency } = useFinance()
   const budget = item.budget ?? item.budget_amount ?? 0
   const spent  = item.spent  ?? 0
   const pct    = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0
@@ -64,10 +65,10 @@ function BudgetCard({ item, isDemo, onDelete, onEdit }) {
         <div className="progress-bar" style={{ width: pct + "%", background: color }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-secondary)" }}>
-        <span>Spent: <strong style={{ color: "var(--text-primary)" }}>${spent.toLocaleString()}</strong></span>
-        <span>Budget: <strong style={{ color: "var(--text-primary)" }}>${budget.toLocaleString()}</strong></span>
+        <span>Spent: <strong style={{ color: "var(--text-primary)" }}>{formatCurrency(spent)}</strong></span>
+        <span>Budget: <strong style={{ color: "var(--text-primary)" }}>{formatCurrency(budget)}</strong></span>
         <span style={{ color: over ? "var(--red)" : "var(--green)" }}>
-          {over ? `-$${Math.abs(left).toFixed(0)} over` : `$${left.toFixed(0)} left`}
+          {over ? `${formatCurrency(Math.abs(left))} over` : `${formatCurrency(left)} left`}
         </span>
       </div>
     </div>
@@ -75,7 +76,7 @@ function BudgetCard({ item, isDemo, onDelete, onEdit }) {
 }
 
 export default function BudgetPlanner() {
-  const { budgets = [], transactions = [], monthlyIncome, addBudgetCategory, deleteBudgetCategory, updateBudgetCategory, loading } = useFinance()
+  const { budgets = [], transactions = [], monthlyIncome, addBudgetCategory, deleteBudgetCategory, updateBudgetCategory, loading, formatCurrency, currencySymbol } = useFinance()
 
   const [showModal,     setShowModal]     = useState(false)
   const [saving,        setSaving]        = useState(false)
@@ -142,10 +143,10 @@ export default function BudgetPlanner() {
       {/* Summary metrics */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 16 }}>
         {[
-          { label: "Monthly Income",  val: "$" + income.toLocaleString(),                color: "var(--green)" },
-          { label: "Total Budgeted",  val: "$" + totalBudgeted.toLocaleString(),         color: "var(--blue)"  },
-          { label: "Total Spent",     val: "$" + totalSpent.toLocaleString(),            color: "var(--red)"   },
-          { label: "Unallocated",     val: "$" + Math.abs(unallocated).toLocaleString(), color: "var(--amber)" },
+          { label: "Monthly Income",  val: formatCurrency(income),                color: "var(--green)" },
+          { label: "Total Budgeted",  val: formatCurrency(totalBudgeted),         color: "var(--blue)"  },
+          { label: "Total Spent",     val: formatCurrency(totalSpent),            color: "var(--red)"   },
+          { label: "Unallocated",     val: formatCurrency(Math.abs(unallocated)), color: "var(--amber)" },
         ].map(({ label, val, color }) => (
           <div key={label} className="card" style={{ textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>{label}</div>
@@ -163,9 +164,9 @@ export default function BudgetPlanner() {
               <span style={{ fontSize: 13, fontWeight: 600 }}>Overall Budget Utilization</span>
             </div>
             <div style={{ display: "flex", gap: 24, fontSize: 12, color: "var(--text-secondary)" }}>
-              <span>Spent: <strong style={{ color: "var(--red)" }}>${totalSpent.toLocaleString()}</strong></span>
+              <span>Spent: <strong style={{ color: "var(--red)" }}>{formatCurrency(totalSpent)}</strong></span>
               <span>Remaining: <strong style={{ color: remainingBudget >= 0 ? "var(--green)" : "var(--red)" }}>
-                {remainingBudget < 0 ? "-$" : "$"}{Math.abs(remainingBudget).toLocaleString()}
+                {formatCurrency(remainingBudget)}
               </strong></span>
               <span>Utilization: <strong style={{ color: overallUtilization >= 100 ? "var(--red)" : overallUtilization >= 80 ? "var(--amber)" : "var(--green)" }}>
                 {overallUtilization}%
@@ -184,8 +185,8 @@ export default function BudgetPlanner() {
       {unallocated > 0 && (
         <div className="alert-bar" style={{ marginBottom: 12 }}>
           <AlertCircle size={15} />
-          You have <strong style={{ margin: "0 4px" }}>${unallocated.toLocaleString()}</strong> left to allocate
-          &nbsp;— Income − Budgeted = ${income.toLocaleString()} − ${totalBudgeted.toLocaleString()} = ${unallocated.toLocaleString()}
+          You have <strong style={{ margin: "0 4px" }}>{formatCurrency(unallocated)}</strong> left to allocate
+          &nbsp;— Income − Budgeted = {formatCurrency(income)} − {formatCurrency(totalBudgeted)} = {formatCurrency(unallocated)}
         </div>
       )}
 
@@ -211,7 +212,7 @@ export default function BudgetPlanner() {
                 <span className="badge badge-amber">No Budget</span>
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                <strong style={{ color: "var(--text-primary)" }}>${uncategorizedTotal.toFixed(2)}</strong> in expenses with no matching budget category.
+                <strong style={{ color: "var(--text-primary)" }}>{formatCurrency(uncategorizedTotal)}</strong> in expenses with no matching budget category.
                 Consider adding budget categories for these expenses.
               </div>
             </div>
@@ -229,7 +230,7 @@ export default function BudgetPlanner() {
                 onChange={e => setForm(f => ({ ...f, category: e.target.value }))} />
             </div>
             <div className="input-group">
-              <label>Amount ($)</label>
+              <label>Amount ({currencySymbol})</label>
               <input className="input-field" type="number" placeholder="0" value={form.budget}
                 onChange={e => setForm(f => ({ ...f, budget: e.target.value }))} />
             </div>
@@ -244,11 +245,11 @@ export default function BudgetPlanner() {
               <div className="input-group span-2" style={{ background: "rgba(68,138,255,0.07)", borderRadius: 8, padding: "10px 14px" }}>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   Normalized to <strong style={{ color: "var(--blue)" }}>
-                    ${toMonthly(form.budget, form.frequency).toFixed(2)}/month
+                    {formatCurrency(toMonthly(form.budget, form.frequency))}/month
                   </strong>{" "}
                   ({form.frequency === "Weekly"
-                    ? `$${parseFloat(form.budget).toFixed(2)}/wk × 52 ÷ 12`
-                    : `$${parseFloat(form.budget).toFixed(2)}/yr ÷ 12`})
+                    ? `${formatCurrency(parseFloat(form.budget))}/wk × 52 ÷ 12`
+                    : `${formatCurrency(parseFloat(form.budget))}/yr ÷ 12`})
                 </div>
               </div>
             )}
@@ -272,7 +273,7 @@ export default function BudgetPlanner() {
                 style={{ opacity: 0.5, cursor: "not-allowed" }} />
             </div>
             <div className="input-group span-2">
-              <label>Budget Amount ($/month)</label>
+              <label>Budget Amount ({currencySymbol}/month)</label>
               <input className="input-field" type="number" value={editingBudget.budget}
                 onChange={e => setEditingBudget(b => ({ ...b, budget: e.target.value }))} />
             </div>

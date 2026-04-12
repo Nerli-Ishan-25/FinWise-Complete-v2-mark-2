@@ -21,7 +21,7 @@ const METRICS = [
 ]
 
 export default function Insights() {
-  const { insights, subscriptions, updateSubscription, loading } = useFinance()
+  const { insights, subscriptions, updateSubscription, loading, formatCurrency } = useFinance()
 
   const score   = insights?.score           ?? 7.8
   const recs    = insights?.recommendations ?? []
@@ -43,7 +43,7 @@ export default function Insights() {
     "DTI 38% — Moderate",
     "3.2 months covered",
     "Under budget most cats",
-    "+$13k past 6 months",
+    `+${formatCurrency(13000, true)} past 6 months`,
   ]
 
   function toggleSub(sub) {
@@ -109,8 +109,8 @@ export default function Insights() {
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
               <div className="chart-title" style={{ marginBottom:0 }}>🔄 Recurring Expenses</div>
               <div style={{ fontSize:12 }}>
-                <span style={{ fontFamily:"var(--font-display)", fontWeight:700 }}>${totalMonthly.toFixed(2)}/mo</span>
-                <span style={{ color:"var(--red)", marginLeft:6 }}>${(totalMonthly*12).toFixed(0)}/yr</span>
+                <span style={{ fontFamily:"var(--font-display)", fontWeight:700 }}>{formatCurrency(totalMonthly)}/mo</span>
+                <span style={{ color:"var(--red)", marginLeft:6 }}>{formatCurrency(totalMonthly*12)}/yr</span>
               </div>
             </div>
 
@@ -124,7 +124,7 @@ export default function Insights() {
                   <div className="sub-last">Last used: {s.last_used || s.last || "Recently"}</div>
                 </div>
                 <div style={{ textAlign:"right", marginRight:10 }}>
-                  <div className="sub-price">${(s.amount ?? 0).toFixed(2)}/mo</div>
+                  <div className="sub-price">{formatCurrency(s.amount ?? 0)}/mo</div>
                 </div>
                 <span className={`badge ${s.active !== false ? "badge-green" : "badge-red"}`} style={{ marginRight: 6 }}>
                   {s.active !== false ? "Active" : "Unused"}
@@ -143,7 +143,7 @@ export default function Insights() {
 
             {unusedTotal > 0 && (
               <div className="alert-bar danger" style={{ marginTop:12, fontSize:12 }}>
-                ⚡ Cancel unused subscriptions to save <strong style={{ margin:"0 3px" }}>${unusedTotal.toFixed(2)}/month</strong> (${(unusedTotal*12).toFixed(0)}/year)
+                ⚡ Cancel unused subscriptions to save <strong style={{ margin:"0 3px" }}>{formatCurrency(unusedTotal)}/month</strong> ({formatCurrency(unusedTotal*12)}/year)
               </div>
             )}
           </div>
@@ -162,7 +162,7 @@ export default function Insights() {
             )) : (
               <>
                 {[
-                  { icon:"🔔", title:"Subscription Overload", body:`You're spending $${totalMonthly.toFixed(2)}/month on subscriptions.`, color:"var(--amber-dim)", dot:"#ffab40" },
+                  { icon:"🔔", title:"Subscription Overload", body:`You're spending ${formatCurrency(totalMonthly)}/month on subscriptions.`, color:"var(--amber-dim)", dot:"#ffab40" },
                   { icon:"📈", title:"Invest Your Surplus",   body:"Consider moving surplus savings to a diversified index fund.",       color:"var(--blue-dim)",  dot:"#448aff" },
                   { icon:"✅", title:"Keep Tracking",         body:"Add more transactions to unlock personalized AI recommendations.",    color:"var(--green-dim)", dot:"#00e676" },
                 ].map(s => (

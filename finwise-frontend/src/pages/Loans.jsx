@@ -22,7 +22,7 @@ function calcMonthly(principal, ratePct, termMonths) {
 }
 
 export default function Loans() {
-  const { loans, addLoan, deleteLoan } = useFinance()
+  const { loans, addLoan, deleteLoan, formatCurrency, currencySymbol } = useFinance()
 
   const [form, setForm] = useState({ 
     amount: "20000", rate: "7", term: "60", loanPurpose: "Home",
@@ -132,7 +132,7 @@ export default function Loans() {
           <div className="chart-title" style={{ marginBottom: 16 }}><CreditCard size={16} /> New Loan Request</div>
           <div className="form-grid" style={{ marginBottom: 24 }}>
             <div className="input-group">
-              <label>Loan Amount ($)</label>
+              <label>Loan Amount ({currencySymbol})</label>
               <input className="input-field" type="number" name="amount" value={form.amount} onChange={handleChange} />
             </div>
             <div className="input-group">
@@ -162,11 +162,11 @@ export default function Loans() {
               <input className="input-field" type="number" name="creditScore" value={form.creditScore} onChange={handleChange} />
             </div>
             <div className="input-group">
-              <label>Annual Income ($)</label>
+              <label>Annual Income ({currencySymbol})</label>
               <input className="input-field" type="number" name="income" value={form.income} onChange={handleChange} />
             </div>
             <div className="input-group">
-              <label>Existing Debt/month ($)</label>
+              <label>Existing Debt/month ({currencySymbol})</label>
               <input className="input-field" type="number" name="debt" value={form.debt} onChange={handleChange} />
             </div>
             <div className="input-group">
@@ -234,7 +234,7 @@ export default function Loans() {
             </div>
           ) : (
             <div className="risk-card">
-              <div className="risk-payment">${result.monthly.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+              <div className="risk-payment">{formatCurrency(result.monthly)}</div>
               <div className="risk-label">Estimated Monthly Payment</div>
               
               <div style={{ marginBottom: 10 }}>
@@ -249,7 +249,7 @@ export default function Loans() {
                   <div className="key">Debt-to-Income</div>
                 </div>
                 <div className="risk-metric">
-                  <div className="val" style={{ color: "var(--red)" }}>${result.totalInt.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                  <div className="val" style={{ color: "var(--red)" }}>{formatCurrency(result.totalInt)}</div>
                   <div className="key">Total Interest</div>
                 </div>
               </div>
@@ -286,8 +286,8 @@ export default function Loans() {
                   {l.best && <span className="best-rate">Best Rate</span>}
                 </td>
                 <td style={{ color: l.best ? "var(--green)" : "var(--text-primary)" }}>{l.rate}%</td>
-                <td>{l.monthly ? `$${l.monthly.toFixed(2)}` : "—"}</td>
-                <td>{l.total   ? `$${l.total.toFixed(0)}`   : "—"}</td>
+                <td>{l.monthly ? formatCurrency(l.monthly) : "—"}</td>
+                <td>{l.total   ? formatCurrency(l.total)   : "—"}</td>
                 <td><Stars n={l.stars} /></td>
               </tr>
             ))}
@@ -306,9 +306,9 @@ export default function Loans() {
             <tbody>
               {loans.map(l => (
                 <tr key={l.id}>
-                  <td style={{ fontWeight: 600 }}>${l.loan_amount.toLocaleString()}</td>
+                  <td style={{ fontWeight: 600 }}>{formatCurrency(l.loan_amount)}</td>
                   <td>{l.interest_rate}%</td>
-                  <td>${l.remaining_amount.toLocaleString()}</td>
+                  <td>{formatCurrency(l.remaining_amount)}</td>
                   <td style={{ color: "var(--text-secondary)", fontSize: 12 }}>
                     {new Date(l.created_at).toLocaleDateString()}
                   </td>
