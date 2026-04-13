@@ -1,19 +1,25 @@
 import { NavLink, useNavigate } from "react-router-dom"
-import {
-  LayoutDashboard, TrendingUp, Calculator,
-  Receipt, CreditCard, Lightbulb, Sparkles, Settings, LogOut, User
-} from "lucide-react"
+import dashboardIcon from "../assets/icons/nav-icons/nav-dashboard.svg"
+import networthIcon from "../assets/icons/nav-icons/nav-networth.svg"
+import budgetIcon from "../assets/icons/nav-icons/nav-budget.svg"
+import expensesIcon from "../assets/icons/nav-icons/nav-expenses.svg"
+import loansIcon from "../assets/icons/nav-icons/nav-loans.svg"
+import insightsIcon from "../assets/icons/nav-icons/nav-insights.svg"
+import assistantIcon from "../assets/icons/nav-icons/nav-ai-assistant.svg"
+import appLogo from "../assets/icons/app-logo/logo-pulse-hex.svg"
+
+import { Settings, LogOut, User } from "lucide-react"
 import { useFinance } from "../context/FinanceContext"
 import { useAuth }    from "../context/AuthContext"
 
 const NAV = [
-  { to: "/",          icon: LayoutDashboard, label: "Dashboard"      },
-  { to: "/net-worth", icon: TrendingUp,      label: "Net Worth"      },
-  { to: "/budget",    icon: Calculator,      label: "Budget Planner" },
-  { to: "/expenses",  icon: Receipt,         label: "Expenses"       },
-  { to: "/loans",     icon: CreditCard,      label: "Loans"          },
-  { to: "/insights",  icon: Lightbulb,       label: "Insights"       },
-  { to: "/assistant", icon: Sparkles,        label: "AI Assistant"   },
+  { to: "/",          icon: dashboardIcon, label: "Dashboard"      },
+  { to: "/net-worth", icon: networthIcon,  label: "Net Worth"      },
+  { to: "/budget",    icon: budgetIcon,    label: "Budget Planner" },
+  { to: "/expenses",  icon: expensesIcon,  label: "Expenses"       },
+  { to: "/loans",     icon: loansIcon,     label: "Loans"          },
+  { to: "/insights",  icon: insightsIcon,  label: "Insights"       },
+  { to: "/assistant", icon: assistantIcon, label: "AI Assistant"   },
 ]
 
 export default function Sidebar() {
@@ -28,7 +34,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="logo-icon">{currencySymbol}</div>
+        <img src={appLogo} alt="FinWise Logo" style={{ width: 32, height: 32, marginRight: 8 }} />
         <div className="logo-text">
           <h2>FinWise</h2>
           <p>AI Finance</p>
@@ -47,7 +53,7 @@ export default function Sidebar() {
       <nav>
         {NAV.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === "/"} className={({ isActive }) => isActive ? "active" : ""}>
-            <Icon />{label}
+            <img src={Icon} alt={label} style={{ width: 20, height: 20, marginRight: 8, filter: "var(--icon-filter, none)" }} />{label}
           </NavLink>
         ))}
       </nav>

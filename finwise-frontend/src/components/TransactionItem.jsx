@@ -6,8 +6,12 @@ export default function TransactionItem({ tx, onDelete }) {
   const { formatCurrency } = useFinance()
   return (
     <div className="tx-item">
-      <div className="tx-icon" style={{ background: isIncome ? "rgba(0,230,118,0.1)" : "rgba(255,255,255,0.05)" }}>
-        {tx.icon || "💰"}
+      <div className="tx-icon" style={{ background: isIncome ? "rgba(0,230,118,0.1)" : "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {typeof tx.icon === 'string' && tx.icon.includes('/') ? (
+          <img src={tx.icon} alt="icon" style={{ width: 20, height: 20, filter: "var(--icon-filter, none)" }} />
+        ) : (
+          tx.icon || "💰"
+        )}
       </div>
       <div className="tx-info">
         <div className="tx-name">{tx.name}</div>

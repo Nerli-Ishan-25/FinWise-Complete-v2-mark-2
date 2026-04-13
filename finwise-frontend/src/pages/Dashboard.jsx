@@ -11,6 +11,15 @@ import TransactionItem from "../components/TransactionItem"
 import Modal from "../components/Modal"
 import { useFinance } from "../context/FinanceContext"
 
+import iconFood from "../assets/icons/category-icons/cat-food.svg"
+import iconSubscriptions from "../assets/icons/category-icons/cat-subscriptions.svg"
+import iconIncome from "../assets/icons/category-icons/cat-income.svg"
+import iconTransport from "../assets/icons/category-icons/cat-transport.svg"
+import iconHealth from "../assets/icons/category-icons/cat-health.svg"
+import iconHousing from "../assets/icons/category-icons/cat-housing.svg"
+import iconEntertainment from "../assets/icons/category-icons/cat-entertainment.svg"
+import iconOther from "../assets/icons/category-icons/cat-property.svg"
+
 const CustomTooltip = ({ active, payload, label, formatter }) => {
   if (!active || !payload?.length) return null
   return (
@@ -23,7 +32,18 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
   )
 }
 
-const CATEGORY_ICONS = { Food:"🛒", Subscriptions:"📺", Income:"💼", Transport:"🚗", Health:"💪", Housing:"🏠", Entertainment:"🎬", income:"💼", expense:"💳" }
+const CATEGORY_ICONS = {
+  Food: iconFood,
+  Subscriptions: iconSubscriptions,
+  Income: iconIncome,
+  Transport: iconTransport,
+  Health: iconHealth,
+  Housing: iconHousing,
+  Entertainment: iconEntertainment,
+  Other: iconOther,
+  income: iconIncome,
+  expense: iconOther
+}
 
 export default function Dashboard() {
   const {
@@ -47,7 +67,7 @@ export default function Dashboard() {
   async function handleSave() {
     if (!form.name || !form.amount) return
     setSaving(true)
-    await addTransaction({ ...form, amount: parseFloat(form.amount), icon: CATEGORY_ICONS[form.category] || "💳" })
+    await addTransaction({ ...form, amount: parseFloat(form.amount), icon: CATEGORY_ICONS[form.category] || iconOther })
     setSaving(false)
     setShowModal(false)
     setForm({ name: "", category: "Food", type: "expense", amount: "", date: new Date().toISOString().split("T")[0] })
@@ -60,7 +80,7 @@ export default function Dashboard() {
     type:     tx.type,
     amount:   tx.amount,
     date:     tx.date?.split("T")[0] || tx.date,
-    icon:     CATEGORY_ICONS[tx.category] || (tx.type === "income" ? "💼" : "💳"),
+    icon:     CATEGORY_ICONS[tx.category] || (tx.type === "income" ? iconIncome : iconOther),
   }))
 
   return (

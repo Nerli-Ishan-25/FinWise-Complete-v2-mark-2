@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import appLogo from "../assets/icons/app-logo/logo-pulse-hex.svg"
 
 export default function AuthPage() {
   const [mode, setMode]       = useState("login") // "login" | "register"
@@ -64,10 +65,11 @@ export default function AuthPage() {
             background: "var(--green)",
             borderRadius: 14,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22,
-            color: "#0a0f1a", margin: "0 auto 12px",
+            margin: "0 auto 12px",
             boxShadow: "0 0 24px rgba(0,230,118,0.3)",
-          }}>$</div>
+          }}>
+            <img src={appLogo} alt="FinWise" style={{ width: 28, height: 28, filter: "brightness(0) invert(0)" }} />
+          </div>
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
             FinWise
           </h1>
