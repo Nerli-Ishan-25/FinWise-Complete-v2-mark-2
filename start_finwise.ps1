@@ -22,14 +22,27 @@ if ($Port5173) {
 # 2. Setup Backend
 Write-Host "`n📦 Preparing Backend..." -ForegroundColor Cyan
 Set-Location "$PSScriptRoot\Backend"
-if (-Not (Test-Path ".\venv")) {
-    Write-Host "❌ Virtual environment not found in $PSScriptRoot\Backend\venv" -ForegroundColor Red
+
+# Check if Python is installed
+$pythonCmd = if (Get-Command "python" -ErrorAction SilentlyContinue) { "python" } elseif (Get-Command "python3" -ErrorAction SilentlyContinue) { "python3" } else { "" }
+if ($pythonCmd -eq "") {
+    Write-Host "❌ Python is not installed or not in PATH." -ForegroundColor Red
     return
 }
 
-# Fix for the email-validator error
-Write-Host "🛠  Ensuring Pydantic email-validator is present..." -ForegroundColor Gray
+if (-Not (Test-Path ".\venv")) {
+    Write-Host "⚠️  Virtual environment not found. Creating one..." -ForegroundColor Yellow
+    & $pythonCmd -m venv venv
+}
+
+Write-Host "🛠  Installing/Updating Backend Dependencies..." -ForegroundColor Gray
+& ".\venv\Scripts\python.exe" -m pip install -r requirements.txt --quiet
 & ".\venv\Scripts\python.exe" -m pip install "pydantic[email]" --quiet
+
+if (-Not (Test-Path ".\.env")) {
+    Write-Host "⚠️  .env missing. Copying from .env.example..." -ForegroundColor Yellow
+    Copy-Item ".\.env.example" -Destination ".\.env"
+}
 
 # Launch Backend in a new window
 Write-Host "⚡ Launching Backend on http://localhost:8000..." -ForegroundColor Green
@@ -39,9 +52,19 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot
 Write-Host "`n🎨 Preparing Frontend..." -ForegroundColor Cyan
 Set-Location "$PSScriptRoot\finwise-frontend"
 
+if (-Not (Get-Command "npm" -ErrorAction SilentlyContinue)) {
+    Write-Host "❌ Node.js (npm) is not installed or not in PATH." -ForegroundColor Red
+    return
+}
+
+if (-Not (Test-Path ".\node_modules")) {
+    Write-Host "⚠️  Frontend dependencies missing. Installing with npm..." -ForegroundColor Yellow
+    npm install
+}
+
 # Launch Frontend in a new window
 Write-Host "⚡ Launching Frontend on http://localhost:5173..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\finwise-frontend'; npx vite"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\finwise-frontend'; npm run dev"
 
 # 4. Handoff
 Write-Host "`n✨ FinWise is coming alive!" -ForegroundColor Yellow

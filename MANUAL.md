@@ -8,9 +8,10 @@ Welcome to **FinWise**, your AI-powered wealth management and budgeting companio
 Before you can manage your finances, you need to launch the application.
 
 ### The Easy Way (Automated Script)
-1. Open a PowerShell window in the project root.
-2. Run `.\start_finwise.ps1`.
-3. This will automatically clean up old processes, start the backend/frontend, and open your browser to the login page.
+1. Open your terminal in the project root.
+2. For Windows: Run `.\start_finwise.ps1`
+3. For Mac/Linux: Run `bash start_finwise.sh`
+4. These scripts will automatically install dependencies, set up environments, and launch both services.
 
 ### The Manual Way
 If you prefer running components separately:
