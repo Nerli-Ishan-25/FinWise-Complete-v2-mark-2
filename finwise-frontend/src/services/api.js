@@ -108,4 +108,9 @@ export const insightsAPI = {
   get: () => api.get("/insights/"),
 }
 
+// ── Assistant ─────────────────────────────────────────────────────────
+export const assistantAPI = {
+  chat: (message) => api.post("/assistant/chat", { message }),
+}
+
 export default api

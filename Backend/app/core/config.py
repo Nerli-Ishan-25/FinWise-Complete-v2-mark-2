@@ -9,6 +9,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     SQLALCHEMY_DATABASE_URI: str = "sqlite:///./finance_app.db"
 
+    # LLM API Keys
+    GROQ_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
+    HF_API_KEY: str | None = None
+    OPENAI_API_KEY: str | None = None
+    ANTHROPIC_API_KEY: str | None = None
+
     class Config:
         case_sensitive = True
         env_file = ".env"

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { FEATURE_CARDS } from "../constants/featureCards"
-import { getMockResponse, MOCK_CONTEXT } from "../utils/mockResponses"
+import { assistantAPI } from "../../../services/api"
 
 /**
  * useAssistant
@@ -9,21 +9,11 @@ import { getMockResponse, MOCK_CONTEXT } from "../utils/mockResponses"
  *   - Session list (max 10, persisted in component state)
  *   - Active session tracking
  *   - Message list for the current conversation
- *   - Send logic (mock now, real API via TODO block)
+ *   - Send logic via assistantAPI (backend LLM call)
  *   - Sidebar open/close toggle
- *
- * On backend integration:
- *   1. Import `useAuth` to get the JWT token
- *   2. Import `useFinance` to get live context data
- *   3. Replace the mock delay + getMockResponse() block with the real fetch call
- *   4. Delete MOCK_CONTEXT import once useFinance() is wired
  */
 export function useAssistant() {
-  const [sessions, setSessions] = useState([
-    { id: "s1", title: "Budget Analysis · Mar 21", date: "Mar 21", messages: [] },
-    { id: "s2", title: "Food spending deep-dive",  date: "Mar 19", messages: [] },
-    { id: "s3", title: "Anomaly Report · Mar 15",  date: "Mar 15", messages: [] },
-  ])
+  const [sessions, setSessions] = useState([])
 
   const [activeId,     setActiveId]     = useState(null)
   const [messages,     setMessages]     = useState([])
@@ -65,43 +55,14 @@ export function useAssistant() {
     setMessages(withUser)
     setThinking(true)
 
-    // ── TODO: Replace this entire block with the real API call ────────────
-    //
-    // const { token } = useAuth()           // import at hook level, not here
-    // const financeCtx = useFinance()       // import at hook level, not here
-    //
-    // const res = await fetch("/api/v1/assistant/chat", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: JSON.stringify({
-    //     message:  content,
-    //     trigger:  triggeredBy,                   // null | "monthly_summary" | "budget_suggestions" | "spending_anomalies"
-    //     history:  messages.slice(-10),           // last 10 messages for context window
-    //     context: {
-    //       monthlyIncome:   financeCtx.monthlyIncome,
-    //       monthlyExpenses: financeCtx.monthlyExpenses,
-    //       savingsRate:     financeCtx.savingsRate,
-    //       netWorth:        financeCtx.netWorth,
-    //       assets:          financeCtx.assets,
-    //       liabilities:     financeCtx.liabilities,
-    //       budgets:         financeCtx.budgets,
-    //       transactions:    financeCtx.transactions.slice(0, 50),
-    //       subscriptions:   financeCtx.subscriptions,
-    //     },
-    //   }),
-    // })
-    // const { response: aiContent } = await res.json()
-    //
-    // ─────────────────────────────────────────────────────────────────────
-
-    // Mock: simulated network delay
-    await new Promise(r => setTimeout(r, 1000 + Math.random() * 700))
-    const aiContent = getMockResponse(content)
-
-    // ─────────────────────────────────────────────────────────────────────
+    let aiContent
+    try {
+      const { data } = await assistantAPI.chat(content)
+      aiContent = data.reply
+    } catch (err) {
+      console.error("Assistant API error:", err)
+      aiContent = "I'm having trouble connecting right now. Please try again shortly."
+    }
 
     const aiMsg = {
       role:        "assistant",

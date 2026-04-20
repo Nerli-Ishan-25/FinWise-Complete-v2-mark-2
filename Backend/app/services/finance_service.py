@@ -392,3 +392,32 @@ def delete_user_subscription(db: Session, user_id: int, sub_id: int) -> bool:
     db.delete(sub)
     db.commit()
     return True
+
+# ── AI Assistant Context Helper ───────────────────────────────────────────────
+
+def get_financial_profile_snapshot(db: Session, user_id: int) -> str:
+    """Builds a comprehensive string snapshot of the user's financial state for LLM context."""
+    month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    total_income = db.query(func.sum(Income.amount)).filter(
+        Income.user_id == user_id, Income.date >= month_start
+    ).scalar() or 0.0
+    
+    total_expenses = db.query(func.sum(Expense.amount)).filter(
+        Expense.user_id == user_id, Expense.date >= month_start
+    ).scalar() or 0.0
+    
+    total_assets = db.query(func.sum(Asset.value)).filter(Asset.user_id == user_id).scalar() or 0.0
+    total_liabilities = db.query(func.sum(Liability.amount)).filter(Liability.user_id == user_id).scalar() or 0.0
+    net_worth = total_assets - total_liabilities
+
+    context = (
+        f"--- FINANCIAL SNAPSHOT ---\n"
+        f"Net Worth: ${net_worth:,.2f}\n"
+        f"Total Assets: ${total_assets:,.2f}\n"
+        f"Total Liabilities: ${total_liabilities:,.2f}\n"
+        f"This Month's Income: ${total_income:,.2f}\n"
+        f"This Month's Expenses: ${total_expenses:,.2f}\n"
+        f"--------------------------"
+    )
+    return context

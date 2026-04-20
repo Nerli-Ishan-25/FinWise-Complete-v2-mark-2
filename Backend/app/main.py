@@ -12,6 +12,7 @@ from app.api import (
     category_routes,
     subscription_routes,
     loan_assessment_routes,
+    assistant_routes,
 )
 from app.database.connection import engine, Base
 from app.models import user_finance  # Ensure models are loaded
@@ -43,6 +44,7 @@ app.include_router(budget_routes.router, prefix=f"{settings.API_V1_STR}/budgets"
 app.include_router(category_routes.router, prefix=f"{settings.API_V1_STR}/categories", tags=["categories"])
 app.include_router(subscription_routes.router, prefix=f"{settings.API_V1_STR}/subscriptions", tags=["subscriptions"])
 app.include_router(loan_assessment_routes.router, prefix=f"{settings.API_V1_STR}/loan-assessment", tags=["loan-assessment"])
+app.include_router(assistant_routes.router, prefix=f"{settings.API_V1_STR}/assistant", tags=["assistant"])
 
 @app.get("/")
 async def root():
