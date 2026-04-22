@@ -8,7 +8,7 @@ import insightsIcon from "../assets/icons/nav-icons/nav-insights.svg"
 import assistantIcon from "../assets/icons/nav-icons/nav-ai-assistant.svg"
 import appLogo from "../assets/icons/app-logo/logo-pulse-hex.svg"
 
-import { Settings, LogOut, User } from "lucide-react"
+import { Settings, LogOut, User, Info } from "lucide-react"
 import { useFinance } from "../context/FinanceContext"
 import { useAuth }    from "../context/AuthContext"
 
@@ -20,6 +20,7 @@ const NAV = [
   { to: "/loans",     icon: loansIcon,     label: "Loans"          },
   { to: "/insights",  icon: insightsIcon,  label: "Insights"       },
   { to: "/assistant", icon: assistantIcon, label: "AI Assistant"   },
+  { to: "/about",     icon: Info,          label: "About Us"       },
 ]
 
 export default function Sidebar() {
@@ -53,7 +54,12 @@ export default function Sidebar() {
       <nav>
         {NAV.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === "/"} className={({ isActive }) => isActive ? "active" : ""}>
-            <img src={Icon} alt={label} style={{ width: 20, height: 20, marginRight: 8, filter: "var(--icon-filter, none)" }} />{label}
+            {typeof Icon === 'string' ? (
+              <img src={Icon} alt={label} style={{ width: 20, height: 20, marginRight: 8, filter: "var(--icon-filter, none)" }} />
+            ) : (
+              <Icon size={20} style={{ marginRight: 8 }} />
+            )}
+            {label}
           </NavLink>
         ))}
       </nav>

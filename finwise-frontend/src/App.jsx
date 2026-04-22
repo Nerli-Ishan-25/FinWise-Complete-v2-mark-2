@@ -8,6 +8,7 @@ import Loans            from "./pages/Loans"
 import Insights         from "./pages/Insights"
 import Settings         from "./pages/Settings"
 import Assistant        from "./pages/Assistant"
+import AboutUs          from "./pages/AboutUs"
 import AuthPage         from "./pages/AuthPage"
 import Onboarding       from "./pages/Onboarding"
 import ProtectedRoute   from "./components/ProtectedRoute"
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/loans"      element={<Loans />}         />
         <Route path="/insights"   element={<Insights />}      />
         <Route path="/assistant"  element={<Assistant />}     />
+        <Route path="/about"      element={<AboutUs />}       />
         <Route path="/settings"   element={<Settings />}      />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
