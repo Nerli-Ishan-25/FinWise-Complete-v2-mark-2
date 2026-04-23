@@ -24,7 +24,8 @@ function Write-Success ([string]$msg) { Write-Host "   [OK] $msg" -ForegroundCol
 function Wait-ForPort ([int]$port, [string]$name) {
     Write-Info "Waiting for $name on port $port..."
     for ($i = 0; $i -lt 40; $i++) {
-        if (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Listen' }) {
+        $listening = netstat -ano 2>$null | Select-String "LISTENING" | Select-String ":$port"
+        if ($listening) {
             Write-Success "$name is ready!"
             return $true
         }
@@ -46,8 +47,14 @@ function Stop-AllProcesses {
     }
     # Final cleanup of ports
     Write-Info "Cleaning up ports 8000 and 5173..."
-    Get-NetTCPConnection -LocalPort 8000, 5173 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object {
-        try { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } catch {}
+    @(8000, 5173) | ForEach-Object {
+        $port = $_
+        $pids = netstat -ano 2>$null | Select-String ":$port" | ForEach-Object {
+            if ($_ -match '\s+(\d+)\s*$') { [int]$matches[1] }
+        } | Select-Object -Unique
+        $pids | ForEach-Object {
+            try { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } catch {}
+        }
     }
     Write-Success "Shutdown complete."
 }
@@ -58,8 +65,14 @@ try {
 
     # 1. Cleanup
     Write-Step "Cleaning up stale ports..."
-    Get-NetTCPConnection -LocalPort 8000, 5173 -ErrorAction SilentlyContinue | ForEach-Object {
-        try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } catch {}
+    @(8000, 5173) | ForEach-Object {
+        $port = $_
+        $pids = netstat -ano 2>$null | Select-String ":$port" | ForEach-Object {
+            if ($_ -match '\s+(\d+)\s*$') { [int]$matches[1] }
+        } | Select-Object -Unique
+        $pids | ForEach-Object {
+            try { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } catch {}
+        }
     }
 
     # 2. Backend
