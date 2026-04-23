@@ -1,90 +1,139 @@
-# FinWise Startup Automator
-# This script handles port conflicts, dependency checks, and launches both services.
+# FinWise Startup Automator v2.5 (Reliable Launch Patch)
+<#
+.SYNOPSIS
+    Automated startup script for FinWise Backend, Frontend, and Cloudflare Tunnel.
+    v2.5: Added tunnel URL extraction and improved frontend visibility.
+#>
+Param(
+    [switch]$NoTunnel,
+    [switch]$BackendOnly,
+    [switch]$FrontendOnly
+)
 
-$ErrorActionPreference = "SilentlyContinue"
+# Set location to script directory
+if ($PSScriptRoot) { Set-Location $PSScriptRoot }
 
-Write-Host "`n🚀 Starting FinWise Ecosystem..." -ForegroundColor Cyan
+$ErrorActionPreference = "Stop"
+$Processes = @()
 
-# 1. Kill existing processes on target ports (8000 and 5173)
-Write-Host "🔍 Checking for existing services on ports 8000 and 5173..." -ForegroundColor Gray
-$Port8000 = Get-NetTCPConnection -LocalPort 8000 2>$null
-if ($Port8000) {
-    Write-Host "⚠️  Cleaning up old backend process (Port 8000)..." -ForegroundColor Yellow
-    $Port8000 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }
+# --- Helper Functions ---
+function Write-Step ([string]$msg) { Write-Host "`n>> $msg" -ForegroundColor Cyan }
+function Write-Info ([string]$msg) { Write-Host "   $msg" -ForegroundColor Gray }
+function Write-Success ([string]$msg) { Write-Host "   [OK] $msg" -ForegroundColor Green }
+
+function Wait-ForPort ([int]$port, [string]$name) {
+    Write-Info "Waiting for $name on port $port..."
+    for ($i = 0; $i -lt 40; $i++) {
+        if (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Where-Object { $_.State -eq 'Listen' }) {
+            Write-Success "$name is ready!"
+            return $true
+        }
+        Start-Sleep -Milliseconds 500
+    }
+    Write-Host "   [!] $name is taking longer than expected to respond." -ForegroundColor Yellow
+    return $false
 }
 
-$Port5173 = Get-NetTCPConnection -LocalPort 5173 2>$null
-if ($Port5173) {
-    Write-Host "⚠️  Cleaning up old frontend process (Port 5173)..." -ForegroundColor Yellow
-    $Port5173 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }
+function Stop-AllProcesses {
+    Write-Step "Shutting down FinWise..."
+    foreach ($p in $Processes) {
+        try {
+            if ($p -and -not $p.HasExited) { 
+                Write-Info "Stopping process $($p.Id)..."
+                Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue 
+            }
+        } catch {}
+    }
+    # Final cleanup of ports
+    Write-Info "Cleaning up ports 8000 and 5173..."
+    Get-NetTCPConnection -LocalPort 8000, 5173 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object {
+        try { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue } catch {}
+    }
+    Write-Success "Shutdown complete."
 }
 
-# 2. Setup Backend
-Write-Host "`n📦 Preparing Backend..." -ForegroundColor Cyan
-Set-Location "$PSScriptRoot\Backend"
+# --- Main Logic ---
+try {
+    Write-Host "FinWise Automator v2.5" -ForegroundColor Yellow
 
-# Check if Python is installed
-$pythonCmd = if (Get-Command "python" -ErrorAction SilentlyContinue) { "python" } elseif (Get-Command "python3" -ErrorAction SilentlyContinue) { "python3" } else { "" }
-if ($pythonCmd -eq "") {
-    Write-Host "❌ Python is not installed or not in PATH." -ForegroundColor Red
-    return
+    # 1. Cleanup
+    Write-Step "Cleaning up stale ports..."
+    Get-NetTCPConnection -LocalPort 8000, 5173 -ErrorAction SilentlyContinue | ForEach-Object {
+        try { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } catch {}
+    }
+
+    # 2. Backend
+    if (-not $FrontendOnly) {
+        Write-Step "Starting Backend..."
+        Push-Location "Backend"
+        if (-not (Test-Path "venv")) { 
+            Write-Info "Creating virtual environment..."
+            python -m venv venv 
+        }
+        
+        # Start Backend
+        $backendProc = Start-Process powershell -ArgumentList "-WindowStyle Hidden", "-Command", ".\venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" -PassThru
+        $Processes += $backendProc
+        Pop-Location
+    }
+
+    # 3. Frontend
+    if (-not $BackendOnly) {
+        Write-Step "Starting Frontend..."
+        Push-Location "finwise-frontend"
+        if (-not (Test-Path "node_modules")) { 
+            Write-Info "Installing dependencies (this may take a minute)..."
+            npm install 
+        }
+        
+        # Start Frontend in a VISIBLE window to see any errors
+        $frontendProc = Start-Process powershell -ArgumentList "-NoExit", "-Command", "npm run dev" -PassThru
+        $Processes += $frontendProc
+        Pop-Location
+    }
+
+    # 4. Finalize
+    $backendReady = if (-not $FrontendOnly) { Wait-ForPort 8000 "Backend" } else { $true }
+    $frontendReady = if (-not $BackendOnly) { Wait-ForPort 5173 "Frontend" } else { $true }
+
+    if (-not $NoTunnel -and -not $BackendOnly -and $frontendReady) {
+        Write-Step "Starting Tunnel..."
+        $cfCmd = if (Get-Command "cloudflared" -ErrorAction SilentlyContinue) { "cloudflared" } else { "npx cloudflared" }
+        
+        # Start tunnel and capture output to extract URL
+        $tempLog = Join-Path $env:TEMP "finwise_tunnel_$($PID).log"
+        $tunnelProc = Start-Process powershell -ArgumentList "-Command", "$cfCmd tunnel --url http://localhost:5173 2> `"$tempLog`"" -PassThru -WindowStyle Hidden
+        $Processes += $tunnelProc
+        
+        Write-Info "Acquiring public URL (waiting 8s)..."
+        Start-Sleep -Seconds 8
+        if (Test-Path $tempLog) {
+            $content = Get-Content $tempLog -Raw
+            if ($content -match "(https://[a-z0-9-]+\.trycloudflare\.com)") {
+                $publicUrl = $matches[1]
+                Write-Host "`n[PUBLIC ACCESS ENABLED]" -ForegroundColor Green
+                Write-Host "URL: $publicUrl" -ForegroundColor Green -BackgroundColor Black
+                Write-Host "Use this link to access FinWise from any device.`n" -ForegroundColor Gray
+            } else {
+                Write-Host "   [!] Tunnel started but URL extraction failed." -ForegroundColor Yellow
+                Write-Info "Check for a separate Cloudflare window or log for the URL."
+            }
+        }
+    }
+
+    if ($backendReady -and $frontendReady) {
+        Write-Step "FinWise System Active!"
+        Write-Host "--- Press Ctrl+C to stop all services ---" -ForegroundColor Yellow
+    } else {
+        Write-Host "`n[!] Some services failed to start correctly. Check the open windows for errors." -ForegroundColor Red
+    }
+
+    # Keep script alive
+    while ($true) { Start-Sleep -Seconds 1 }
 }
-
-if (-Not (Test-Path ".\venv")) {
-    Write-Host "⚠️  Virtual environment not found. Creating one..." -ForegroundColor Yellow
-    & $pythonCmd -m venv venv
+catch {
+    Write-Host "`n[!] An error occurred: $($_.Exception.Message)" -ForegroundColor Red
 }
-
-Write-Host "🛠  Installing/Updating Backend Dependencies..." -ForegroundColor Gray
-& ".\venv\Scripts\python.exe" -m pip install -r requirements.txt --quiet
-& ".\venv\Scripts\python.exe" -m pip install "pydantic[email]" --quiet
-
-if (-Not (Test-Path ".\.env")) {
-    Write-Host "⚠️  .env missing. Copying from .env.example..." -ForegroundColor Yellow
-    Copy-Item ".\.env.example" -Destination ".\.env"
+finally {
+    Stop-AllProcesses
 }
-
-# Launch Backend in a new window
-Write-Host "⚡ Launching Backend on http://localhost:8000..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\Backend'; .\venv\Scripts\python.exe -m app.main"
-
-# 3. Setup Frontend
-Write-Host "`n🎨 Preparing Frontend..." -ForegroundColor Cyan
-Set-Location "$PSScriptRoot\finwise-frontend"
-
-if (-Not (Get-Command "npm" -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ Node.js (npm) is not installed or not in PATH." -ForegroundColor Red
-    return
-}
-
-if (-Not (Test-Path ".\node_modules")) {
-    Write-Host "⚠️  Frontend dependencies missing. Installing with npm..." -ForegroundColor Yellow
-    npm install
-}
-
-# Launch Frontend in a new window
-Write-Host "⚡ Launching Frontend on http://localhost:5173..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\finwise-frontend'; npm run dev"
-
-# 4. Expose via Cloudflare Tunnel
-Write-Host "`n🌐 Exposing FinWise to the internet..." -ForegroundColor Cyan
-Write-Host "🔗 Starting Cloudflare Tunnel for Frontend..." -ForegroundColor Gray
-
-# Start Tunnel in a new window
-# We use npx cloudflared so the user doesn't have to install it manually
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Generating your public HTTPS URL...'; npx cloudflared tunnel --url http://localhost:5173"
-
-# 5. Handoff
-Write-Host "`n✨ FinWise is coming alive!" -ForegroundColor Yellow
-Write-Host "🔗 Local Frontend: http://localhost:5173" -ForegroundColor Gray
-Write-Host "🔗 Local Backend:  http://localhost:8000" -ForegroundColor Gray
-Write-Host "🔗 Public URL:     Check the new 'cloudflared' window for the .trycloudflare.com link" -ForegroundColor Green
-Write-Host "`nKeep all terminal windows open to maintain the services." -ForegroundColor White
-
-Write-Host "--------------------------------------------------------"
-Write-Host "System Stabilized | Internet Exposure Active" -ForegroundColor Green
-Write-Host "--------------------------------------------------------`n"
-
-Start-Sleep -Seconds 3
-# Note: We still open localhost for the user, but they can use the tunnel link from the other window
-Start-Process "http://localhost:5173"
