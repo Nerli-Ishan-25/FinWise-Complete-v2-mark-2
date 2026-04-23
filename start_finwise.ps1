@@ -66,15 +66,25 @@ if (-Not (Test-Path ".\node_modules")) {
 Write-Host "⚡ Launching Frontend on http://localhost:5173..." -ForegroundColor Green
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\finwise-frontend'; npm run dev"
 
-# 4. Handoff
+# 4. Expose via Cloudflare Tunnel
+Write-Host "`n🌐 Exposing FinWise to the internet..." -ForegroundColor Cyan
+Write-Host "🔗 Starting Cloudflare Tunnel for Frontend..." -ForegroundColor Gray
+
+# Start Tunnel in a new window
+# We use npx cloudflared so the user doesn't have to install it manually
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "Write-Host 'Generating your public HTTPS URL...'; npx cloudflared tunnel --url http://localhost:5173"
+
+# 5. Handoff
 Write-Host "`n✨ FinWise is coming alive!" -ForegroundColor Yellow
-Write-Host "🔗 Frontend: http://localhost:5173" -ForegroundColor Gray
-Write-Host "🔗 Backend:  http://localhost:8000" -ForegroundColor Gray
-Write-Host "`nKeep the terminal windows open to maintain the services." -ForegroundColor White
+Write-Host "🔗 Local Frontend: http://localhost:5173" -ForegroundColor Gray
+Write-Host "🔗 Local Backend:  http://localhost:8000" -ForegroundColor Gray
+Write-Host "🔗 Public URL:     Check the new 'cloudflared' window for the .trycloudflare.com link" -ForegroundColor Green
+Write-Host "`nKeep all terminal windows open to maintain the services." -ForegroundColor White
 
 Write-Host "--------------------------------------------------------"
-Write-Host "System Stabilized | Financial Correctness Verified" -ForegroundColor Green
+Write-Host "System Stabilized | Internet Exposure Active" -ForegroundColor Green
 Write-Host "--------------------------------------------------------`n"
 
 Start-Sleep -Seconds 3
+# Note: We still open localhost for the user, but they can use the tunnel link from the other window
 Start-Process "http://localhost:5173"

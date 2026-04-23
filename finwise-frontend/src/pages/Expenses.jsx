@@ -17,7 +17,7 @@ import iconHousing from "../assets/icons/category-icons/cat-housing.svg"
 import iconEntertainment from "../assets/icons/category-icons/cat-entertainment.svg"
 import iconOther from "../assets/icons/category-icons/cat-property.svg"
 
-const CATS = ["All","Food","Subscriptions","Income","Transport","Health","Entertainment","Housing"]
+const CATS = ["All", "Food", "Subscriptions", "Income", "Transport", "Health", "Entertainment", "Housing", "Shopping", "Utilities", "Investments"]
 const CATEGORY_ICONS = {
   Food: iconFood,
   Subscriptions: iconSubscriptions,

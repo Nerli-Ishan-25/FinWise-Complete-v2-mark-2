@@ -11,7 +11,8 @@ Before you can manage your finances, you need to launch the application.
 1. Open your terminal in the project root.
 2. For Windows: Run `.\start_finwise.ps1`
 3. For Mac/Linux: Run `bash start_finwise.sh`
-4. These scripts will automatically install dependencies, set up environments, and launch both services.
+4. These scripts will automatically install dependencies, set up environments, launch both services, and **generate a public HTTPS URL** via Cloudflare Tunnel.
+5. Check the `cloudflared` terminal window for your public link (e.g., `https://example.trycloudflare.com`).
 
 ### The Manual Way
 If you prefer running components separately:
@@ -61,7 +62,15 @@ Analyze your wealth in detail:
 
 ---
 
-## 💰 5. Budgeting & Expenses
+## 🤖 5. AI Financial Insights
+Unlock deep analysis of your financial health:
+1. **Health Score**: A 0–100 score based on your **Savings Rate**, **Debt-to-Income (DTI)** ratio, and **Emergency Fund** status.
+2. **Savings Analysis**: Real-time feedback on your current savings rate (Income vs. Expenses).
+3. **Emergency Fund**: Automated calculation of how many months your current assets can cover your monthly expenses.
+4. **Smart Suggestions**: Personalized AI-generated recommendations to improve your financial standing.
+5. **Subscription Manager**: Identify unused or recurring expenses and see your annual potential savings.
+
+## 💰 6. Budgeting & Expenses
 
 ### Budget Planner
 Set your limits and track your progress:
@@ -75,10 +84,11 @@ Set your limits and track your progress:
 1. Click **Add Transaction** to record a new expense.
 2. Ensure you pick a **Category** that matches one of your Budget categories to enable real-time tracking.
 3. Once saved, a success notification will appear. You can continue navigating while this notification is visible.
+4. **Dynamic Colors**: FinWise uses an intelligent color engine. Any new category you create will automatically receive a unique, consistent color in your charts.
 
 ---
 
-## 🔒 6. Ending Your Session
+## 🔒 7. Ending Your Session
 To keep your financial data secure:
 1. Click **Log Out** in the sidebar footer.
 2. This clears your session tokens and ensures nobody else can access your data from the current browser.

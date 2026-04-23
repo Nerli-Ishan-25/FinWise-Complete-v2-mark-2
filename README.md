@@ -84,6 +84,7 @@ The following folders and files exist within the project but serve **no function
 *   **Uvicorn** as the robust ASGI web server
 *   **SQLite** for out-of-the-box local data storage
 *   **Bcrypt & Python-Jose** for secure authentication and JWT tokens
+*   **Cloudflare Tunnel** for secure public internet exposure without port forwarding
 
 ---
 
@@ -118,7 +119,8 @@ If you've just cloned this repository from GitHub, you will need to do a one-tim
    ```powershell
    .\start_finwise.ps1
    ```
-3. This script gracefully cleans up old blocked ports (like 8000 or 5173), verifies components, starts the backend and frontend in parallel, and opens your browser.
+3. This script gracefully cleans up old blocked ports (like 8000 or 5173), verifies components, starts the backend and frontend in parallel, and **launches a Cloudflare Tunnel** to provide you with a public HTTPS URL.
+4. Check the new terminal window for a `.trycloudflare.com` link to access your app from other devices (phones, tablets, etc.).
 
 ### The Manual Way
 If you prefer managing the terminals yourself or are running on a non-Windows OS:
@@ -141,6 +143,11 @@ npm install   # If running for the first time
 npm run dev
 ```
 *The frontend will run on `http://localhost:5173`*
+
+### 🧪 Test Credentials
+Use these to explore the app with pre-populated data:
+- **Email**: `ishan25@gmail.com`
+- **Password**: `12345678`
 
 ---
 

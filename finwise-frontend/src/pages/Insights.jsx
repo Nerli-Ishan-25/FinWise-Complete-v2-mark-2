@@ -36,14 +36,16 @@ export default function Insights() {
 
   const metricScores = [
     metrics.savingsRate ? Math.min(100, Math.round(metrics.savingsRate * 4)) : 85,
-    62, 70, 80, 90,
+    metrics.debtToIncome !== undefined ? Math.max(0, 100 - Math.round(metrics.debtToIncome * 100)) : 62,
+    metrics.emergencyFundRatio !== undefined ? Math.min(100, Math.round(metrics.emergencyFundRatio * 15)) : 70,
+    80, 90,
   ]
   const metricSubs = [
-    metrics.savingsRate ? `${metrics.savingsRate.toFixed(1)}% — ${metrics.savingsRate >= 20 ? "Excellent" : "Moderate"}` : "33% — Excellent",
-    "DTI 38% — Moderate",
-    "3.2 months covered",
+    metrics.savingsRate !== undefined ? `${metrics.savingsRate.toFixed(1)}% — ${metrics.savingsRate >= 20 ? "Excellent" : "Moderate"}` : "33% — Excellent",
+    metrics.debtToIncome !== undefined ? `DTI ${(metrics.debtToIncome * 100).toFixed(1)}% — ${metrics.debtToIncome < 0.4 ? "Good" : "High"}` : "DTI 38% — Moderate",
+    metrics.emergencyFundRatio !== undefined ? `${metrics.emergencyFundRatio.toFixed(1)} months covered` : "3.2 months covered",
     "Under budget most cats",
-    `+${formatCurrency(13000, true)} past 6 months`,
+    `+${formatCurrency(metrics.netWorth || 0, true)} current`,
   ]
 
   function toggleSub(sub) {
@@ -74,7 +76,9 @@ export default function Insights() {
             <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)" }}>
               <div className="score-number">{scoreDisplay}</div>
               <div className="score-label">out of 100</div>
-              <div className="score-sublabel">Great shape! Keep building.</div>
+              <div className="score-sublabel">
+                {scoreDisplay >= 80 ? "Excellent shape!" : scoreDisplay >= 60 ? "Good progress!" : "Needs attention"}
+              </div>
             </div>
           </div>
 

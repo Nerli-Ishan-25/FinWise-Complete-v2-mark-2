@@ -87,6 +87,9 @@ export function FinanceProvider({ children }) {
     Housing: "#448aff", Food: "#00e676", Transport: "#ffab40",
     Subscriptions: "#b388ff", Entertainment: "#ff5252",
     Health: "#40c4ff", Income: "#64ffda", Other: "#ff80ab",
+    Shopping: "#f06292", Utilities: "#9575cd", Investments: "#81c784",
+    Bills: "#e57373", Personal: "#ba68c8", Education: "#4db6ac",
+    Insurance: "#7986cb", Travel: "#ffb74d"
   }
   const spendingByCategory = useMemo(() => {
     const MAP = {}
@@ -94,9 +97,18 @@ export function FinanceProvider({ children }) {
       const cat = tx.category || "Other"
       MAP[cat] = (MAP[cat] || 0) + tx.amount
     })
+    const stringToColor = (str) => {
+      let hash = 0
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash)
+      }
+      const c = (hash & 0x00FFFFFF).toString(16).toUpperCase()
+      return "#" + "00000".substring(0, 6 - c.length) + c
+    }
+
     return Object.entries(MAP).map(([name, value]) => ({
       name, value: parseFloat(value.toFixed(2)),
-      color: CATEGORY_COLORS[name] || "#9e9e9e",
+      color: CATEGORY_COLORS[name] || stringToColor(name),
     }))
   }, [transactions])
 

@@ -191,8 +191,11 @@ def get_dashboard_metrics(db: Session, user_id: int):
         ai_data = get_ai_insights(db, user_id, skip_finance_call=True,
                                   raw_metrics={
                                       "monthlyIncome": total_income,
+                                      "monthlyExpenses": total_expenses,
                                       "savingsRate": savings_rate,
-                                      "netWorth": net_worth
+                                      "netWorth": net_worth,
+                                      "totalAssets": total_assets,
+                                      "totalLiabilities": total_liabilities
                                   })
         health_score = ai_data["score"]
         insights = ai_data["recommendations"]
@@ -204,6 +207,8 @@ def get_dashboard_metrics(db: Session, user_id: int):
 
     return {
         "netWorth": net_worth,
+        "totalAssets": total_assets,
+        "totalLiabilities": total_liabilities,
         "monthlyIncome": total_income,
         "monthlyExpenses": total_expenses,
         "savingsRate": savings_rate,
