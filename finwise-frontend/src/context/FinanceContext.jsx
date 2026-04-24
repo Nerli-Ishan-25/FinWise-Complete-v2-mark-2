@@ -30,25 +30,27 @@ export function FinanceProvider({ children }) {
     setCurrencyState(newCurrency)
   }, [])
 
-  const { symbol: currencySymbol, rate: conversionRate } = useMemo(() => {
+  const { symbol: currencySymbol, locale: currencyLocale } = useMemo(() => {
     const sym = currency.match(/\((.*?)\)/)?.[1] || "$"
     const code = currency.split(" ")[0] || "USD"
-    const RATES = { USD: 1, EUR: 0.92, GBP: 0.79, INR: 93.12, JPY: 151.4, CAD: 1.36, AUD: 1.52 }
-    return { symbol: sym, rate: RATES[code] || 1 }
+    // All values are stored as-is in the DB (in the user's chosen currency).
+    // No conversion needed — rate is always 1. Locale controls number formatting.
+    const LOCALES = { USD: "en-US", EUR: "de-DE", GBP: "en-GB", INR: "en-IN", JPY: "ja-JP", CAD: "en-CA", AUD: "en-AU" }
+    return { symbol: sym, locale: LOCALES[code] || "en-US" }
   }, [currency])
 
   const formatCurrency = useCallback((value, compact = false) => {
     if (value === undefined || value === null || isNaN(value)) return ""
-    const converted = value * conversionRate
-    const absVal = Math.abs(converted)
+    const num = Number(value)
+    const absVal = Math.abs(num)
     let formatted
     if (compact && absVal >= 1000) {
       formatted = +(absVal / 1000).toFixed(1) + "k"
     } else {
-      formatted = absVal.toLocaleString(undefined, { maximumFractionDigits: 0 })
+      formatted = absVal.toLocaleString(currencyLocale, { maximumFractionDigits: 0 })
     }
-    return (converted < 0 ? "-" : "") + currencySymbol + formatted
-  }, [conversionRate, currencySymbol])
+    return (num < 0 ? "-" : "") + currencySymbol + formatted
+  }, [currencyLocale, currencySymbol])
 
   // ── Derived values ────────────────────────────────────────────────────────
   const monthlyIncome = dashboard?.monthlyIncome ?? 0

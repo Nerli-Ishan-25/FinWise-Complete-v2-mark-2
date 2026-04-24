@@ -418,11 +418,11 @@ def get_financial_profile_snapshot(db: Session, user_id: int) -> str:
 
     context = (
         f"--- FINANCIAL SNAPSHOT ---\n"
-        f"Net Worth: ${net_worth:,.2f}\n"
-        f"Total Assets: ${total_assets:,.2f}\n"
-        f"Total Liabilities: ${total_liabilities:,.2f}\n"
-        f"This Month's Income: ${total_income:,.2f}\n"
-        f"This Month's Expenses: ${total_expenses:,.2f}\n"
+        f"Net Worth: ₹{net_worth:,.2f}\n"
+        f"Total Assets: ₹{total_assets:,.2f}\n"
+        f"Total Liabilities: ₹{total_liabilities:,.2f}\n"
+        f"This Month's Income: ₹{total_income:,.2f}\n"
+        f"This Month's Expenses: ₹{total_expenses:,.2f}\n"
         f"--------------------------"
     )
     return context

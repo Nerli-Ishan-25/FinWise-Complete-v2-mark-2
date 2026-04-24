@@ -3,11 +3,14 @@ import { CreditCard, Activity, Save, Trash2, AlertCircle } from "lucide-react"
 import { useFinance } from "../context/FinanceContext"
 import { loanAssessmentAPI } from "../services/api"
 
+// Approximate Indian bank home loan rates (FY 2025 — for reference only)
 const LENDERS = [
-  { name: "Bank A",       rate: 7.0, stars: 5, best: false },
-  { name: "Credit Union", rate: 6.5, stars: 4, best: false },
-  { name: "Online Bank",  rate: 6.2, stars: 3, best: true  },
-  { name: "Bank B",       rate: 7.5, stars: 2, best: false },
+  { name: "Bank of Baroda",    type: "PSU",     rate: 8.40, stars: 4, best: true  },
+  { name: "SBI",               type: "PSU",     rate: 8.50, stars: 5, best: false },
+  { name: "Kotak Mahindra",    type: "Private", rate: 8.65, stars: 4, best: false },
+  { name: "HDFC Bank",         type: "Private", rate: 8.75, stars: 5, best: false },
+  { name: "Axis Bank",         type: "Private", rate: 8.75, stars: 4, best: false },
+  { name: "ICICI Bank",        type: "Private", rate: 8.85, stars: 4, best: false },
 ]
 
 function Stars({ n }) {
@@ -44,11 +47,12 @@ export default function Loans() {
     try {
       const principal = parseFloat(form.amount)
       const monthlyPmt = calcMonthly(principal, parseFloat(form.rate), parseFloat(form.term))
-      
+
       const annualIncome = parseFloat(form.income)
       const monthlyIncome = annualIncome / 12
       const existingDebt = parseFloat(form.debt)
-      const dtiRatio = (existingDebt + monthlyPmt) / monthlyIncome
+      // DTI is computed server-side from income + existing_debt
+      const dtiRatio = (existingDebt + monthlyPmt) / monthlyIncome   // local-only, for display
 
       const payload = {
         age: parseInt(form.age),
@@ -64,7 +68,7 @@ export default function Loans() {
         has_co_signer: form.hasCoSigner,
         loan_amount: principal,
         loan_term: parseInt(form.term),
-        dti_ratio: dtiRatio,
+        existing_debt: existingDebt,
         loan_purpose: form.loanPurpose
       }
 
@@ -273,10 +277,14 @@ export default function Loans() {
 
       {/* Lender Comparison */}
       <div className="chart-card" style={{ marginBottom: 20 }}>
-        <div className="chart-title">📈 Lender Comparison</div>
+        <div className="chart-title">📈 Lender Comparison
+          <span style={{ fontSize: 11, fontWeight: 400, color: "var(--text-secondary)", marginLeft: 8 }}>
+            Indicative rates · FY 2025
+          </span>
+        </div>
         <table className="fin-table">
           <thead>
-            <tr><th>Lender</th><th>Interest Rate</th><th>Est. Monthly</th><th>Total Cost</th><th>Rating</th></tr>
+            <tr><th>Lender</th><th>Type</th><th>Interest Rate</th><th>Est. Monthly</th><th>Total Cost</th><th>Rating</th></tr>
           </thead>
           <tbody>
             {lendersWithPayment.map(l => (
@@ -284,6 +292,13 @@ export default function Loans() {
                 <td>
                   <div style={{ fontWeight: 600 }}>{l.name}</div>
                   {l.best && <span className="best-rate">Best Rate</span>}
+                </td>
+                <td>
+                  <span style={{
+                    fontSize: 11, padding: "2px 7px", borderRadius: 4, fontWeight: 600,
+                    background: l.type === "PSU" ? "rgba(59,130,246,0.15)" : "rgba(168,85,247,0.15)",
+                    color: l.type === "PSU" ? "#60a5fa" : "#c084fc"
+                  }}>{l.type}</span>
                 </td>
                 <td style={{ color: l.best ? "var(--green)" : "var(--text-primary)" }}>{l.rate}%</td>
                 <td>{l.monthly ? formatCurrency(l.monthly) : "—"}</td>
@@ -293,6 +308,9 @@ export default function Loans() {
             ))}
           </tbody>
         </table>
+        <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--border)" }}>
+          ⚠️ Rates shown are approximate indicative figures for FY 2025 based on publicly available data. Actual rates depend on credit profile, loan amount, and bank policy. Always verify with the lender.
+        </div>
       </div>
 
       {/* Saved Loans History */}

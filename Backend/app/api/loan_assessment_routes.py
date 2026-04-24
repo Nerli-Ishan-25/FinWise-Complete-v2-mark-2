@@ -32,69 +32,73 @@ router = APIRouter()
 
 class LoanAssessmentRequest(BaseModel):
     # Borrower profile
-    age: int = Field(..., ge=18, le=100, description="Applicant age in years")
-    income: float = Field(..., gt=0, description="Annual gross income in USD")
-    credit_score: int = Field(..., ge=300, le=850, description="FICO credit score")
-    months_employed: int = Field(..., ge=0, le=600, description="Months at current employment")
-    num_credit_lines: int = Field(..., ge=1, le=50, description="Number of open credit lines")
-    education: str = Field(..., description=f"One of: {VALID_EDUCATION}")
-    employment_type: str = Field(..., description=f"One of: {VALID_EMPLOYMENT}")
-    marital_status: str = Field(..., description=f"One of: {VALID_MARITAL}")
-    has_mortgage: str = Field(..., description="'Yes' or 'No'")
-    has_dependents: str = Field(..., description="'Yes' or 'No'")
-    has_co_signer: str = Field(..., description="'Yes' or 'No'")
+    age: int = Field(..., ge=18, le=100)
+    income: float = Field(..., gt=0, description="Annual income")
+    credit_score: int = Field(..., ge=300, le=850)
+    months_employed: int = Field(..., ge=0, le=600)
+    num_credit_lines: int = Field(..., ge=1, le=50)
+
+    education: str
+    employment_type: str
+    marital_status: str
+    has_mortgage: str
+    has_dependents: str
+    has_co_signer: str
 
     # Loan details
-    loan_amount: float = Field(..., gt=0, description="Requested loan amount in USD")
-    loan_term: int = Field(..., ge=6, le=360, description="Loan term in months")
-    dti_ratio: float = Field(..., ge=0.0, le=2.0, description="Debt-to-income ratio (0-2)")
-    loan_purpose: str = Field(..., description=f"One of: {VALID_LOAN_PURPOSE}")
+    loan_amount: float = Field(..., gt=0)
+    loan_term: int = Field(..., ge=6, le=360)
+    loan_purpose: str
 
+    # ✅ NEW (instead of dti_ratio)
+    existing_debt: float = Field(..., ge=0, description="Monthly debt")
+
+    # ---- Validators (same as before) ----
     @field_validator("education")
     @classmethod
-    def validate_education(cls, v: str) -> str:
+    def validate_education(cls, v):
         if v not in VALID_EDUCATION:
             raise ValueError(f"education must be one of {VALID_EDUCATION}")
         return v
 
     @field_validator("employment_type")
     @classmethod
-    def validate_employment(cls, v: str) -> str:
+    def validate_employment(cls, v):
         if v not in VALID_EMPLOYMENT:
             raise ValueError(f"employment_type must be one of {VALID_EMPLOYMENT}")
         return v
 
     @field_validator("marital_status")
     @classmethod
-    def validate_marital(cls, v: str) -> str:
+    def validate_marital(cls, v):
         if v not in VALID_MARITAL:
             raise ValueError(f"marital_status must be one of {VALID_MARITAL}")
         return v
 
     @field_validator("has_mortgage")
     @classmethod
-    def validate_mortgage(cls, v: str) -> str:
+    def validate_mortgage(cls, v):
         if v not in VALID_MORTGAGE:
             raise ValueError("has_mortgage must be 'Yes' or 'No'")
         return v
 
     @field_validator("has_dependents")
     @classmethod
-    def validate_dependents(cls, v: str) -> str:
+    def validate_dependents(cls, v):
         if v not in VALID_DEPENDENTS:
             raise ValueError("has_dependents must be 'Yes' or 'No'")
         return v
 
     @field_validator("loan_purpose")
     @classmethod
-    def validate_purpose(cls, v: str) -> str:
+    def validate_purpose(cls, v):
         if v not in VALID_LOAN_PURPOSE:
             raise ValueError(f"loan_purpose must be one of {VALID_LOAN_PURPOSE}")
         return v
 
     @field_validator("has_co_signer")
     @classmethod
-    def validate_cosigner(cls, v: str) -> str:
+    def validate_cosigner(cls, v):
         if v not in VALID_COSIGNER:
             raise ValueError("has_co_signer must be 'Yes' or 'No'")
         return v
@@ -115,21 +119,27 @@ class LoanAssessmentResponse(BaseModel):
 
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
-@router.post(
-    "/predict",
-    response_model=LoanAssessmentResponse,
-    summary="Run XGBoost loan eligibility assessment",
-    description=(
-        "Submits borrower and loan details to the trained XGBoost model. "
-        "Returns an eligibility verdict, default probability, risk level, and key factors."
-    ),
-)
+@router.post("/predict", response_model=LoanAssessmentResponse)
 def assess_loan(
     request: LoanAssessmentRequest,
     current_user: User = Depends(get_current_active_user),
 ):
-    """Run the XGBoost pipeline and return a loan eligibility result."""
     try:
+        # ✅ Compute DTI safely inside backend
+        monthly_income = request.income / 12
+
+        if monthly_income <= 0:
+            raise HTTPException(status_code=400, detail="Invalid income")
+
+        dti_ratio = request.existing_debt / monthly_income
+
+        # ✅ Extra safety (optional but smart)
+        if dti_ratio > 2:
+            raise HTTPException(
+                status_code=400,
+                detail=f"DTI ratio too high: {round(dti_ratio,2)} (must be <= 2)"
+            )
+
         result = predict_loan_eligibility(
             age=request.age,
             income=request.income,
@@ -138,7 +148,7 @@ def assess_loan(
             months_employed=request.months_employed,
             num_credit_lines=request.num_credit_lines,
             loan_term=request.loan_term,
-            dti_ratio=request.dti_ratio,
+            dti_ratio=dti_ratio,  # ✅ computed value
             education=request.education,
             employment_type=request.employment_type,
             marital_status=request.marital_status,
@@ -147,20 +157,17 @@ def assess_loan(
             loan_purpose=request.loan_purpose,
             has_co_signer=request.has_co_signer,
         )
+
     except LoanInputValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"Input validation failed: {exc}",
         )
-    except RuntimeError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Loan assessment model unavailable: {exc}",
-        )
+
     except Exception as exc:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error during loan assessment: {exc}",
+            status_code=500,
+            detail=f"Unexpected error: {exc}",
         )
 
     return LoanAssessmentResponse(
@@ -173,7 +180,6 @@ def assess_loan(
         explanation=result.explanation,
         key_factors=result.key_factors,
     )
-
 
 @router.get(
     "/info",
