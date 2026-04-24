@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CreditCard, Activity, Save, Trash2, AlertCircle } from "lucide-react"
+import { CreditCard, Activity, Save, Trash2, ShieldOff, ShieldCheck, ShieldAlert } from "lucide-react"
 import { useFinance } from "../context/FinanceContext"
 import { loanAssessmentAPI } from "../services/api"
 
@@ -9,6 +9,22 @@ const LENDERS = [
   { name: "Online Bank",  rate: 6.2, stars: 3, best: true  },
   { name: "Bank B",       rate: 7.5, stars: 2, best: false },
 ]
+
+// Maps a Pydantic error field name → short user-friendly label
+const FIELD_LABEL_MAP = {
+  dti_ratio:        { label: "High Debt-to-Income Ratio",   hint: "Reduce existing monthly debt or increase income." },
+  credit_score:     { label: "Credit Score Out of Range",   hint: "Credit score must be between 300 and 850." },
+  income:           { label: "Income Value Invalid",         hint: "Annual income must be a positive number." },
+  loan_amount:      { label: "Loan Amount Invalid",          hint: "Loan amount must be greater than zero." },
+  loan_term:        { label: "Loan Term Out of Range",       hint: "Term must be between 6 and 360 months." },
+  age:              { label: "Age Out of Range",             hint: "Applicant age must be between 18 and 100." },
+  months_employed:  { label: "Employment Duration Invalid",  hint: "Months employed must be between 0 and 600." },
+  num_credit_lines: { label: "Credit Lines Out of Range",    hint: "Must have 1 to 50 open credit lines." },
+}
+
+function getDeclineCard(reason, hint) {
+  return { declined: true, reason, hint }
+}
 
 function Stars({ n }) {
   return <div className="stars">{"★".repeat(n)}{"☆".repeat(5 - n)}</div>
@@ -21,72 +37,152 @@ function calcMonthly(principal, ratePct, termMonths) {
   return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
 }
 
+// ── Inline decline panel rendered in the right-side card ──────────────────────
+function DeclinePanel({ reason, hint }) {
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 14,
+      padding: "28px 16px",
+      textAlign: "center",
+    }}>
+      {/* Icon */}
+      <div style={{
+        width: 52, height: 52, borderRadius: "50%",
+        background: "rgba(239,68,68,0.12)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <ShieldOff size={24} color="var(--red)" />
+      </div>
+
+      {/* Status badge */}
+      <span className="badge badge-red" style={{ fontSize: 12, letterSpacing: "0.03em" }}>
+        Eligibility Needs Improvement
+      </span>
+
+      {/* Short reason */}
+      <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)", lineHeight: 1.3 }}>
+        {reason}
+      </div>
+
+      {/* One-line actionable hint */}
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5, maxWidth: 220 }}>
+        {hint}
+      </div>
+
+      {/* Divider hint */}
+      <div style={{
+        marginTop: 4,
+        padding: "8px 14px",
+        borderRadius: 8,
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        fontSize: 11,
+        color: "var(--text-secondary)",
+      }}>
+        Adjust the inputs on the left and re-analyze.
+      </div>
+    </div>
+  )
+}
+
 export default function Loans() {
   const { loans, addLoan, deleteLoan, formatCurrency, currencySymbol } = useFinance()
 
-  const [form, setForm] = useState({ 
+  const [form, setForm] = useState({
     amount: "20000", rate: "7", term: "60", loanPurpose: "Home",
-    age: "35", income: "60000", debt: "800", creditScore: "680", 
-    monthsEmployed: "48", numCreditLines: "3", education: "Bachelor's", 
+    age: "35", income: "60000", debt: "800", creditScore: "680",
+    monthsEmployed: "48", numCreditLines: "3", education: "Bachelor's",
     employmentType: "Full-time", maritalStatus: "Single",
     hasMortgage: "No", hasDependents: "No", hasCoSigner: "No"
   })
-  
+
   const [result,  setResult]  = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving,  setSaving]  = useState(false)
-  const [error,   setError]   = useState(null)
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   async function analyze() {
     setLoading(true)
-    setError(null)
-    
-    try {
-      const principal = parseFloat(form.amount)
-      const monthlyPmt = calcMonthly(principal, parseFloat(form.rate), parseFloat(form.term))
-      
-      const annualIncome = parseFloat(form.income)
-      const monthlyIncome = annualIncome / 12
-      const existingDebt = parseFloat(form.debt)
-      const dtiRatio = (existingDebt + monthlyPmt) / monthlyIncome
+    setResult(null)
 
-      const payload = {
-        age: parseInt(form.age),
-        income: annualIncome,
-        credit_score: parseInt(form.creditScore),
-        months_employed: parseInt(form.monthsEmployed),
-        num_credit_lines: parseInt(form.numCreditLines),
-        education: form.education,
-        employment_type: form.employmentType,
-        marital_status: form.maritalStatus,
-        has_mortgage: form.hasMortgage,
-        has_dependents: form.hasDependents,
-        has_co_signer: form.hasCoSigner,
-        loan_amount: principal,
-        loan_term: parseInt(form.term),
-        dti_ratio: dtiRatio,
-        loan_purpose: form.loanPurpose
+    try {
+      const principal     = parseFloat(form.amount)
+      const monthlyPmt    = calcMonthly(principal, parseFloat(form.rate), parseFloat(form.term))
+      const annualIncome  = parseFloat(form.income)
+      const monthlyIncome = annualIncome / 12
+      const existingDebt  = parseFloat(form.debt)
+      const dtiRatio      = (existingDebt + monthlyPmt) / monthlyIncome
+
+      // ── Pre-flight guard — DTI exceeds backend cap (2.0 = 200%) ─────────────
+      // Instead of throwing a top-page error, we synthesise a "declined" result
+      // and surface it cleanly in the right panel only.
+      if (dtiRatio > 2.0) {
+        setResult(getDeclineCard(
+          "Financial Risk Too High",
+          "Your monthly debt obligations exceed twice your monthly income. Lower existing debt or increase annual income to qualify."
+        ))
+        setLoading(false)
+        return
       }
 
-      const res = await loanAssessmentAPI.predict(payload)
+      const payload = {
+        age:              parseInt(form.age),
+        income:           annualIncome,
+        credit_score:     parseInt(form.creditScore),
+        months_employed:  parseInt(form.monthsEmployed),
+        num_credit_lines: parseInt(form.numCreditLines),
+        education:        form.education,
+        employment_type:  form.employmentType,
+        marital_status:   form.maritalStatus,
+        has_mortgage:     form.hasMortgage,
+        has_dependents:   form.hasDependents,
+        has_co_signer:    form.hasCoSigner,
+        loan_amount:      principal,
+        loan_term:        parseInt(form.term),
+        dti_ratio:        dtiRatio,
+        loan_purpose:     form.loanPurpose,
+      }
+
+      const res  = await loanAssessmentAPI.predict(payload)
       const data = res.data
+      const n    = parseFloat(form.term)
 
-      const n = parseFloat(form.term)
-      const totalInt = monthlyPmt * n - principal
-
-      setResult({ 
-        monthly: monthlyPmt, 
-        totalInt, 
-        dti: dtiRatio * 100, 
-        risk: data.risk_level,
-        riskColor: data.risk_level === "Low" ? "var(--green)" : data.risk_level === "Moderate" ? "var(--amber)" : "var(--red)",
-        ai: data
+      setResult({
+        declined:   false,
+        monthly:    monthlyPmt,
+        totalInt:   monthlyPmt * n - principal,
+        dti:        dtiRatio * 100,
+        risk:       data.risk_level,
+        riskColor:  data.risk_level === "Low" ? "var(--green)" : data.risk_level === "Moderate" ? "var(--amber)" : "var(--red)",
+        ai:         data,
       })
+
     } catch (err) {
-      if (err.response?.data?.detail) {
-        setError(JSON.stringify(err.response.data.detail))
+      // ── Backend validation errors → map to friendly label in right panel ────
+      const detail = err.response?.data?.detail
+
+      if (Array.isArray(detail) && detail.length > 0) {
+        // Pick the first Pydantic error and resolve it to a human label
+        const first     = detail[0]
+        const fieldName = first.loc?.slice(1).join(".") ?? ""
+        const mapped    = FIELD_LABEL_MAP[fieldName]
+
+        setResult(getDeclineCard(
+          mapped?.label ?? "Eligibility Needs Improvement",
+          mapped?.hint  ?? "Please review your inputs and try again."
+        ))
+      } else if (typeof detail === "string") {
+        setResult(getDeclineCard("Application Could Not Be Processed", detail))
       } else {
-        setError(err.message)
+        setResult(getDeclineCard(
+          "Application Could Not Be Processed",
+          "An unexpected error occurred. Please check your inputs and try again."
+        ))
       }
     } finally {
       setLoading(false)
@@ -94,22 +190,19 @@ export default function Loans() {
   }
 
   async function handleSaveLoan() {
-    if (!result) return
+    if (!result || result.declined) return
     setSaving(true)
     await addLoan({ loan_amount: form.amount, interest_rate: form.rate, remaining_amount: form.amount })
     setSaving(false)
   }
 
   const lendersWithPayment = LENDERS.map(l => {
-    if (!result) return { ...l, monthly: null, total: null }
+    if (!result || result.declined) return { ...l, monthly: null, total: null }
     const principal = parseFloat(form.amount)
-    const n = parseFloat(form.term)
-    const m = calcMonthly(principal, l.rate, n)
+    const n         = parseFloat(form.term)
+    const m         = calcMonthly(principal, l.rate, n)
     return { ...l, monthly: m, total: m * n }
   })
-
-  // Helper for inputs
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   return (
     <div>
@@ -120,14 +213,10 @@ export default function Loans() {
         </div>
       </div>
 
-      {error && (
-        <div className="alert-bar danger" style={{ marginBottom: 20 }}>
-          <AlertCircle size={16} /> {error}
-        </div>
-      )}
+      {/* ── No top-level error banner — all feedback lives in the right panel ── */}
 
       <div className="grid-2-1" style={{ marginBottom: 20 }}>
-        {/* Input Form */}
+        {/* ── Left: Input Form ─────────────────────────────────────────────── */}
         <div className="chart-card">
           <div className="chart-title" style={{ marginBottom: 16 }}><CreditCard size={16} /> New Loan Request</div>
           <div className="form-grid" style={{ marginBottom: 24 }}>
@@ -214,7 +303,7 @@ export default function Loans() {
               onClick={analyze} disabled={loading}>
               <Activity size={14} /> {loading ? "Analyzing via AI..." : "Analyze Affordability"}
             </button>
-            {result && (
+            {result && !result.declined && (
               <button className="btn btn-outline" onClick={handleSaveLoan} disabled={saving}
                 title="Save this loan to history">
                 <Save size={14} /> {saving ? "Saving..." : "Save Loan"}
@@ -223,20 +312,30 @@ export default function Loans() {
           </div>
         </div>
 
-        {/* Risk Assessment */}
+        {/* ── Right: Risk Assessment / Status Panel ────────────────────────── */}
         <div className="chart-card">
           <div className="chart-title">◎ Risk Assessment</div>
-          {!result ? (
+
+          {/* State 1 — idle, nothing submitted yet */}
+          {!result && (
             <div style={{ color: "var(--text-secondary)", fontSize: 13, lineHeight: 1.7, padding: "20px 0", textAlign: "center" }}>
               Fill in the 15 data points and click<br />
               <strong style={{ color: "var(--text-primary)" }}>Analyze Affordability</strong><br />
               to dispatch the request to the XGBoost inference engine.
             </div>
-          ) : (
+          )}
+
+          {/* State 2 — validation / eligibility failed → clean inline panel */}
+          {result?.declined && (
+            <DeclinePanel reason={result.reason} hint={result.hint} />
+          )}
+
+          {/* State 3 — model returned a result */}
+          {result && !result.declined && (
             <div className="risk-card">
               <div className="risk-payment">{formatCurrency(result.monthly)}</div>
               <div className="risk-label">Estimated Monthly Payment</div>
-              
+
               <div style={{ marginBottom: 10 }}>
                 <span className={`badge ${result.risk === "Low" ? "badge-green" : result.risk === "Moderate" ? "badge-amber" : "badge-red"}`}>
                   {result.risk} Default Risk ({result.ai.default_probability_pct}%)
@@ -253,7 +352,7 @@ export default function Loans() {
                   <div className="key">Total Interest</div>
                 </div>
               </div>
-              
+
               <div className="alert-bar" style={{ marginTop: 16, textAlign: "left", fontSize: 13, background: "var(--surface)", border: `1px solid ${result.riskColor}`, color: "var(--text-primary)" }}>
                 <strong>AI Verdict:</strong> {result.ai.explanation}
               </div>
@@ -271,7 +370,7 @@ export default function Loans() {
         </div>
       </div>
 
-      {/* Lender Comparison */}
+      {/* ── Lender Comparison ────────────────────────────────────────────────── */}
       <div className="chart-card" style={{ marginBottom: 20 }}>
         <div className="chart-title">📈 Lender Comparison</div>
         <table className="fin-table">
@@ -295,7 +394,7 @@ export default function Loans() {
         </table>
       </div>
 
-      {/* Saved Loans History */}
+      {/* ── Saved Loans History ───────────────────────────────────────────────── */}
       {loans.length > 0 && (
         <div className="chart-card">
           <div className="chart-title">🗂 Saved Loans</div>
