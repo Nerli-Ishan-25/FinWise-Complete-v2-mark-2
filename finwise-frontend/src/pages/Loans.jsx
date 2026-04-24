@@ -111,7 +111,6 @@ export default function Loans() {
 
   async function analyze() {
     setLoading(true)
-<<<<<<< HEAD
     setResult(null)
 
     try {
@@ -132,36 +131,6 @@ export default function Loans() {
         ))
         setLoading(false)
         return
-=======
-    setError(null)
-    
-    try {
-      const principal = parseFloat(form.amount)
-      const monthlyPmt = calcMonthly(principal, parseFloat(form.rate), parseFloat(form.term))
-
-      const annualIncome = parseFloat(form.income)
-      const monthlyIncome = annualIncome / 12
-      const existingDebt = parseFloat(form.debt)
-      // DTI is computed server-side from income + existing_debt
-      const dtiRatio = (existingDebt + monthlyPmt) / monthlyIncome   // local-only, for display
-
-      const payload = {
-        age: parseInt(form.age),
-        income: annualIncome,
-        credit_score: parseInt(form.creditScore),
-        months_employed: parseInt(form.monthsEmployed),
-        num_credit_lines: parseInt(form.numCreditLines),
-        education: form.education,
-        employment_type: form.employmentType,
-        marital_status: form.maritalStatus,
-        has_mortgage: form.hasMortgage,
-        has_dependents: form.hasDependents,
-        has_co_signer: form.hasCoSigner,
-        loan_amount: principal,
-        loan_term: parseInt(form.term),
-        existing_debt: existingDebt,
-        loan_purpose: form.loanPurpose
->>>>>>> develop
       }
 
       const payload = {
