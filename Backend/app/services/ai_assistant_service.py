@@ -66,7 +66,7 @@ class AIAssistantService:
             "Content-Type": "application/json",
         }
         payload = {
-            "model": "llama3-8b-8192",
+            "model": "llama-3.3-70b-versatile",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
@@ -78,6 +78,8 @@ class AIAssistantService:
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers=headers, json=payload,
             )
+            if resp.status_code != 200:
+                logger.error(f"Groq API Error: {resp.text}")
             resp.raise_for_status()
             return resp.json()["choices"][0]["message"]["content"]
 
