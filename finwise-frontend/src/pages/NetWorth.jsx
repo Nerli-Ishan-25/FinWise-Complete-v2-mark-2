@@ -10,17 +10,19 @@ const ASSET_ICONS  = { Savings: "🏦", Stocks: "📈", Crypto: "₿", Property:
 
 export default function NetWorth() {
   const {
-    assets, liabilities, totalAssets, totalLiabilities, netWorth,
+    assets, liabilities, totalAssets, totalLiabilities, netWorth, monthlyIncome, updateMonthlyIncome,
     addAsset, deleteAsset, updateAsset,
     addLiability, deleteLiability, updateLiability, formatCurrency, currencySymbol
   } = useFinance()
 
   const [showAssetModal,     setShowAssetModal]     = useState(false)
   const [showDebtModal,      setShowDebtModal]       = useState(false)
+  const [showIncomeModal,    setShowIncomeModal]     = useState(false)
   const [editingAsset,       setEditingAsset]        = useState(null)
   const [editingLiability,   setEditingLiability]    = useState(null)
   const [assetForm,  setAssetForm]  = useState({ name: "", type: "Savings", value: "" })
   const [debtForm,   setDebtForm]   = useState({ name: "", apr: "", amount: "" })
+  const [incomeForm, setIncomeForm] = useState(monthlyIncome || "")
 
   function handleAddAsset() {
     if (!assetForm.name || !assetForm.value) return
@@ -62,26 +64,38 @@ export default function NetWorth() {
       </div>
 
       {/* Overview Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
         <div className="card">
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>What you own</div>
-          <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Total Assets</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>What you own</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8 }}>Total Assets</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--green)" }}>
             {formatCurrency(totalAssets)}
           </div>
         </div>
         <div className="card">
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>What you owe</div>
-          <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Total Liabilities</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>What you owe</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8 }}>Total Liabilities</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--red)" }}>
             {formatCurrency(totalLiabilities)}
           </div>
         </div>
         <div className="card">
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 6 }}>Your wealth</div>
-          <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 8 }}>Net Worth</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 6 }}>Your wealth</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8 }}>Net Worth</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: netWorth < 0 ? "var(--red)" : "var(--green)" }}>
             {formatCurrency(netWorth)}
+          </div>
+        </div>
+        <div className="card">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}>Your Earnings</div>
+            <button className="btn-icon" onClick={() => { setIncomeForm(monthlyIncome || ""); setShowIncomeModal(true); }}>
+              <Edit2 size={12} />
+            </button>
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8 }}>Monthly Income</div>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, color: "var(--green)" }}>
+            {formatCurrency(monthlyIncome)}
           </div>
         </div>
       </div>
@@ -297,6 +311,25 @@ export default function NetWorth() {
           <div className="form-actions">
             <button className="btn btn-outline" onClick={() => setEditingLiability(null)}>Cancel</button>
             <button className="btn btn-primary" onClick={() => { updateLiability(editingLiability.id, editingLiability); setEditingLiability(null) }}>
+              Save Changes
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Update Income Modal */}
+      {showIncomeModal && (
+        <Modal title="Update Monthly Income" onClose={() => setShowIncomeModal(false)}>
+          <div className="form-grid">
+            <div className="input-group span-2">
+              <label>Monthly Income ({currencySymbol})</label>
+              <input className="input-field" type="number" placeholder="e.g. 5000" value={incomeForm}
+                onChange={e => setIncomeForm(e.target.value)} />
+            </div>
+          </div>
+          <div className="form-actions">
+            <button className="btn btn-outline" onClick={() => setShowIncomeModal(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={() => { updateMonthlyIncome(incomeForm); setShowIncomeModal(false); }} disabled={!incomeForm || Number(incomeForm) < 0}>
               Save Changes
             </button>
           </div>

@@ -7,7 +7,7 @@ from app.schemas.finance_schema import (
     ExpenseCreate, ExpenseResponse,
     LoanCreate, LoanResponse,
     DashboardMetrics, TransactionResponse,
-    MonthlySummaryItem,
+    MonthlySummaryItem, IncomeUpdateRequest,
 )
 from app.services import finance_service
 from app.api.dependencies import get_current_active_user
@@ -30,6 +30,10 @@ def list_income(db: Session = Depends(get_db), current_user: User = Depends(get_
 @router.post("/income", response_model=IncomeResponse)
 def add_income(income_in: IncomeCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     return finance_service.create_user_income(db, current_user.id, income_in)
+
+@router.put("/update-income")
+def update_user_income_route(income_in: IncomeUpdateRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
+    return finance_service.update_user_income(db, current_user.id, income_in)
 
 @router.get("/expenses", response_model=List[ExpenseResponse])
 def list_expenses(db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):

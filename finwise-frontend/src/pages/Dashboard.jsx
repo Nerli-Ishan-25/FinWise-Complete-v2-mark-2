@@ -167,11 +167,11 @@ export default function Dashboard() {
             <Link to="/net-worth" className="view-all">Details <ChevronRight size={13}/></Link>
           </div>
           <div style={{display:"flex",gap:28,marginBottom:16}}>
-            <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Assets</div>
+            <div><div style={{fontSize:11,fontWeight:700,color:"var(--text-secondary)"}}>Assets</div>
               <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--green)"}}>{formatCurrency(totalAssets)}</div></div>
-            <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Debt</div>
+            <div><div style={{fontSize:11,fontWeight:700,color:"var(--text-secondary)"}}>Debt</div>
               <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color:"var(--red)"}}>{formatCurrency(totalLiabilities)}</div></div>
-            <div><div style={{fontSize:11,color:"var(--text-secondary)"}}>Net Worth</div>
+            <div><div style={{fontSize:11,fontWeight:700,color:"var(--text-secondary)"}}>Net Worth</div>
               <div style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:700,color: netWorth < 0 ? "var(--red)" : "var(--text-primary)"}}>
                 {formatCurrency(netWorth)}
               </div></div>

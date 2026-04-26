@@ -44,6 +44,7 @@ export const authAPI = {
 // ── Dashboard ─────────────────────────────────────────────────────────
 export const dashboardAPI = {
   getMetrics: () => api.get("/finance/dashboard"),
+  updateIncome: (income) => api.put("/finance/update-income", { income }),
 }
 
 // ── Transactions ──────────────────────────────────────────────────────

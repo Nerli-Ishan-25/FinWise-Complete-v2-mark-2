@@ -11,7 +11,9 @@ from app.schemas.finance_schema import (
     AssetCreate, AssetUpdate, LiabilityCreate, LiabilityUpdate,
     CategoryCreate, BudgetCreate, BudgetUpdate,
     SubscriptionCreate, SubscriptionUpdate,
+    IncomeUpdateRequest,
 )
+from app.models.user_finance import User
 
 # ── Income ────────────────────────────────────────────────────────────────────
 
@@ -170,9 +172,14 @@ def get_dashboard_metrics(db: Session, user_id: int):
 
     month_start = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    total_income = db.query(func.sum(Income.amount)).filter(
-        Income.user_id == user_id, Income.date >= month_start
-    ).scalar() or 0.0
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if user and user.monthly_income and user.monthly_income > 0:
+        total_income = user.monthly_income
+    else:
+        total_income = db.query(func.sum(Income.amount)).filter(
+            Income.user_id == user_id, Income.date >= month_start
+        ).scalar() or 0.0
 
     total_expenses = db.query(func.sum(Expense.amount)).filter(
         Expense.user_id == user_id, Expense.date >= month_start
@@ -216,6 +223,14 @@ def get_dashboard_metrics(db: Session, user_id: int):
         "insights": insights,
         "forecastedNextMonth": forecast,
     }
+
+def update_user_income(db: Session, user_id: int, income_in: IncomeUpdateRequest):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        user.monthly_income = income_in.income
+        db.commit()
+        db.refresh(user)
+    return {"status": "success", "income": income_in.income}
 
 # ── Net Worth (lightweight) ─────────────────────────────────────────────────────
 

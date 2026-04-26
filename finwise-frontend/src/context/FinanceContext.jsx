@@ -129,6 +129,16 @@ export function FinanceProvider({ children }) {
 
   // ── Loaders ───────────────────────────────────────────────────────────────
   const loadDashboard = useCallback(async () => { try { const { data } = await dashboardAPI.getMetrics(); setDashboard(data) } catch (e) { console.error(e) } }, [])
+
+  async function updateMonthlyIncome(income) {
+    try {
+      await dashboardAPI.updateIncome(parseFloat(income))
+      await loadDashboard()
+      showToast("Monthly income updated", "success")
+    } catch (e) {
+      showToast("Failed to update monthly income")
+    }
+  }
   const loadTransactions = useCallback(async () => { try { const { data } = await transactionAPI.list(100); setTransactions(data) } catch (e) { console.error(e) } }, [])
   const loadAssets = useCallback(async () => { try { const { data } = await assetAPI.list(); setAssets(data) } catch (e) { console.error(e) } }, [])
   const loadLiabilities = useCallback(async () => { try { const { data } = await liabilityAPI.list(); setLiabilities(data) } catch (e) { console.error(e) } }, [])
@@ -276,6 +286,7 @@ export function FinanceProvider({ children }) {
       addBudgetCategory, deleteBudgetCategory, updateBudgetCategory,
       addSubscription, deleteSubscription, updateSubscription,
       loadDashboard, loadTransactions, loadBudgets, loadInsights,
+      updateMonthlyIncome,
     }}>
       {children}
     </FinanceContext.Provider>

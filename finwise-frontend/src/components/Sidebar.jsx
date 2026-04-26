@@ -8,9 +8,10 @@ import insightsIcon from "../assets/icons/nav-icons/nav-insights.svg"
 import assistantIcon from "../assets/icons/nav-icons/nav-ai-assistant.svg"
 import appLogo from "../assets/icons/app-logo/logo-pulse-hex.svg"
 
-import { Settings, LogOut, User, Info } from "lucide-react"
+import { Settings, LogOut, User, Info, Sun, Moon } from "lucide-react"
 import { useFinance } from "../context/FinanceContext"
 import { useAuth }    from "../context/AuthContext"
+import { useTheme }   from "../context/ThemeContext"
 
 const NAV = [
   { to: "/",          icon: dashboardIcon, label: "Dashboard"      },
@@ -26,6 +27,7 @@ const NAV = [
 export default function Sidebar() {
   const { netWorth, loading } = useFinance()
   const { user, logout }      = useAuth()
+  const { theme, toggleTheme }= useTheme()
   const navigate              = useNavigate()
 
   function handleLogout() { logout(); navigate("/login") }
@@ -65,6 +67,10 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
+        <button type="button" onClick={toggleTheme}>
+          {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          {theme === "light" ? "Dark Mode" : "Light Mode"}
+        </button>
         <NavLink to="/settings" className={({ isActive }) => isActive ? "active" : ""}>
           <Settings /> Settings
         </NavLink>

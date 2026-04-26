@@ -169,3 +169,7 @@ class SubscriptionResponse(BaseModel):
     last_used: Optional[date] = None
     class Config:
         from_attributes = True
+
+class IncomeUpdateRequest(BaseModel):
+    income: float
+
