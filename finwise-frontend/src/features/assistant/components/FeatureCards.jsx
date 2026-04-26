@@ -60,9 +60,9 @@ function FeatureCard({ card, animDelay, disabled, onSelect }) {
   }
 
   function handleMouseLeave(e) {
-    e.currentTarget.style.borderColor = "rgba(255,255,255,0.09)"
+    e.currentTarget.style.borderColor = ""
     e.currentTarget.style.boxShadow   = ""
-    e.currentTarget.style.background  = "#141d2e"
+    e.currentTarget.style.background  = ""
     e.currentTarget.style.transform   = ""
   }
 
@@ -100,7 +100,7 @@ function FeatureCard({ card, animDelay, disabled, onSelect }) {
           fontFamily:    "'Syne', sans-serif",
           fontSize:      13.5,
           fontWeight:    700,
-          color:         "#f0f4ff",
+          color:         "var(--text-primary)",
           marginBottom:  6,
           letterSpacing: "-0.01em",
         }}
@@ -109,7 +109,7 @@ function FeatureCard({ card, animDelay, disabled, onSelect }) {
       </div>
 
       {/* Description */}
-      <div style={{ fontSize: 11.5, color: "#4a5e74", lineHeight: 1.55 }}>
+      <div style={{ fontSize: 11.5, color: "var(--text-secondary)", lineHeight: 1.55 }}>
         {card.sub}
       </div>
 

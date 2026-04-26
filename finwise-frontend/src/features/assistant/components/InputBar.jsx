@@ -79,11 +79,11 @@ export function InputBar({ value, onChange, onSend, disabled }) {
           paddingLeft: 2,
         }}
       >
-        <span style={{ fontSize: 10.5, color: "#2e3e55" }}>
+        <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>
           <kbd style={kbdStyle}>Enter</kbd> to send
         </span>
-        <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#2e3e55", display: "inline-block" }} />
-        <span style={{ fontSize: 10.5, color: "#2e3e55" }}>
+        <span style={{ width: 3, height: 3, borderRadius: "50%", background: "var(--text-muted)", display: "inline-block" }} />
+        <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>
           <kbd style={kbdStyle}>Shift+Enter</kbd> for new line
         </span>
       </div>
@@ -92,11 +92,11 @@ export function InputBar({ value, onChange, onSend, disabled }) {
 }
 
 const kbdStyle = {
-  background:   "#141d2e",
-  border:       "1px solid rgba(255,255,255,0.09)",
+  background:   "var(--bg-card)",
+  border:       "1px solid var(--border)",
   borderRadius: 4,
   padding:      "1px 6px",
   fontSize:     10,
-  color:        "#4a5e74",
+  color:        "var(--text-secondary)",
   fontFamily:   "monospace",
 }

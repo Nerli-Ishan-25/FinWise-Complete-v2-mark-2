@@ -47,17 +47,98 @@
 }
 
 .light-theme {
-  --bg-base: #f8fafc;
+  --bg-base: #f5f7fb;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --bg-input: #f8fafc;
+  --bg-card-hover: #f8fafc;
+  --bg-input: #ffffff;
+
   --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --border: #e2e8f0;
-  --border-light: #f1f5f9;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --border: #dbe3ee;
+  --border-strong: #cbd5e1;
+  --border-light: #e2e8f0;
+
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
+  --shadow-md: 0 8px 24px rgba(15,23,42,.08);
+
   --green: #059669;
+  --green-hover: #047857;
+
+  --nav-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+}
+
+/* --- LIGHT MODE COMPONENT OVERRIDES --- */
+.light-theme .card,
+.light-theme .stat-card,
+.light-theme .chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.light-theme .card:hover,
+.light-theme .stat-card:hover,
+.light-theme .chart-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.light-theme .sidebar {
+  border-right: 1px solid var(--border);
+  background: #ffffff;
+  box-shadow: 1px 0 2px rgba(15,23,42,.02);
+}
+
+.light-theme .btn-primary {
+  background: var(--green);
+  color: white;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.light-theme .btn-primary:hover {
+  background: var(--green-hover);
+  box-shadow: none;
+}
+
+.light-theme .btn-outline {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.light-theme .btn-outline:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+
+.light-theme .input-field {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.light-theme .input-field:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+}
+
+.light-theme .net-worth-widget {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+.light-theme .net-worth-widget .amount,
+.light-theme .net-worth-widget .label {
+  color: #064e3b;
+}
+.light-theme .net-worth-widget .change {
+  color: #065f46;
 }
 
 html, body, #root {

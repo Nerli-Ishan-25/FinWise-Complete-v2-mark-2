@@ -598,3 +598,37 @@
     height: 28px;
   }
 }
+
+/* --- LIGHT MODE COMPONENT OVERRIDES --- */
+.light-theme .fw-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+}
+.light-theme .fw-card:hover {
+  background: var(--bg-card-hover) !important;
+  border-color: var(--border-strong) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+.light-theme .fw-inputbox {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+.light-theme .fw-inputbox:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+}
+
+.light-theme .fw-sendbtn[disabled] {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+}
+.light-theme .fw-sendbtn:not([disabled]) {
+  background: var(--green) !important;
+  color: white !important;
+  box-shadow: none !important;
+}
