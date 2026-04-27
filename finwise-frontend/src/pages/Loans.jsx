@@ -115,24 +115,12 @@ export default function Loans() {
 
     try {
       const principal     = parseFloat(form.amount)
-      const monthlyPmt    = calcMonthly(principal, parseFloat(form.rate), parseFloat(form.term))
       const annualIncome  = parseFloat(form.income)
-      const monthlyIncome = annualIncome / 12
       const existingDebt  = parseFloat(form.debt)
-      const dtiRatio      = (existingDebt + monthlyPmt) / monthlyIncome
 
-      // ── Pre-flight guard — DTI exceeds backend cap (2.0 = 200%) ─────────────
-      // Instead of throwing a top-page error, we synthesise a "declined" result
-      // and surface it cleanly in the right panel only.
-      if (dtiRatio > 2.0) {
-        setResult(getDeclineCard(
-          "Financial Risk Too High",
-          "Your monthly debt obligations exceed twice your monthly income. Lower existing debt or increase annual income to qualify."
-        ))
-        setLoading(false)
-        return
-      }
-
+      // ── Frontend only does basic validation - backend calculates DTI correctly ──
+      // We send existing_debt and loan details, backend computes DTI including new loan payment
+      
       const payload = {
         age:              parseInt(form.age),
         income:           annualIncome,
@@ -147,19 +135,27 @@ export default function Loans() {
         has_co_signer:    form.hasCoSigner,
         loan_amount:      principal,
         loan_term:        parseInt(form.term),
-        dti_ratio:        dtiRatio,
+        existing_debt:    existingDebt,
+        interest_rate:    parseFloat(form.rate),
         loan_purpose:     form.loanPurpose,
       }
 
+      // Calculate monthly payment for display (frontend doesn't use this for DTI)
+      const monthlyPmt = calcMonthly(principal, parseFloat(form.rate), parseInt(form.term))
+
       const res  = await loanAssessmentAPI.predict(payload)
       const data = res.data
-      const n    = parseFloat(form.term)
+      const n    = parseInt(form.term)
+
+      // Get actual DTI from backend response for display
+      const monthlyIncome = annualIncome / 12
+      const finalDti = (existingDebt + monthlyPmt) / monthlyIncome
 
       setResult({
         declined:   false,
         monthly:    monthlyPmt,
         totalInt:   monthlyPmt * n - principal,
-        dti:        dtiRatio * 100,
+        dti:        finalDti * 100,
         risk:       data.risk_level,
         riskColor:  data.risk_level === "Low" ? "var(--green)" : data.risk_level === "Moderate" ? "var(--amber)" : "var(--red)",
         ai:         data,

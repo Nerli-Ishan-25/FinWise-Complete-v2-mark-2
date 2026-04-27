@@ -50,6 +50,9 @@ class LoanAssessmentRequest(BaseModel):
     loan_term: int = Field(..., ge=6, le=360)
     loan_purpose: str
 
+    # Interest rate (optional, defaults to 7%)
+    interest_rate: Optional[float] = Field(default=7.0, ge=0, le=50, description="Annual interest rate percentage")
+
     # ✅ NEW (instead of dti_ratio)
     existing_debt: float = Field(..., ge=0, description="Monthly debt")
 
@@ -125,13 +128,32 @@ def assess_loan(
     current_user: User = Depends(get_current_active_user),
 ):
     try:
-        # ✅ Compute DTI safely inside backend
+        # ✅ Compute DTI safely inside backend using actual interest rate
         monthly_income = request.income / 12
 
         if monthly_income <= 0:
             raise HTTPException(status_code=400, detail="Invalid income")
 
-        dti_ratio = request.existing_debt / monthly_income
+        # Get interest rate from request (sent as percentage, e.g., 7 for 7%)
+        # Default to 7% if not provided
+        interest_rate = getattr(request, 'interest_rate', 7.0) or 7.0
+        annual_rate = float(interest_rate) / 100
+        monthly_rate = annual_rate / 12
+
+        # Calculate new loan's monthly payment using actual interest rate
+        if monthly_rate > 0 and request.loan_term > 0:
+            r = monthly_rate
+            term = request.loan_term
+            loan = request.loan_amount
+            new_monthly_pmt = loan * (r * (1 + r) ** term) / ((1 + r) ** term - 1)
+        elif request.loan_term > 0:
+            new_monthly_pmt = request.loan_amount / request.loan_term
+        else:
+            new_monthly_pmt = 0
+
+        # Total DTI = (existing debt + new loan payment) / monthly income
+        total_monthly_obligations = request.existing_debt + new_monthly_pmt
+        dti_ratio = total_monthly_obligations / monthly_income
 
         # ✅ Extra safety (optional but smart)
         if dti_ratio > 2:
