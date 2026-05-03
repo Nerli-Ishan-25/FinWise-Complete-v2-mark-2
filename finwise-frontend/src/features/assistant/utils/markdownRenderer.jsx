@@ -23,12 +23,68 @@ function renderInline(text) {
   )
 }
 
+function parseTable(lines, keyPrefix) {
+  if (lines.length < 2) return null;
+  
+  const headers = lines[0].split("|").slice(1, -1).map(s => s.trim());
+  const rows = lines.slice(2).map(line => line.split("|").slice(1, -1).map(s => s.trim()));
+
+  return (
+    <div key={keyPrefix} style={{ overflowX: "auto", margin: "14px 0", background: "rgba(0,0,0,0.15)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.08)" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, textAlign: "left" }}>
+        <thead>
+          <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.15)", backgroundColor: "rgba(255,255,255,0.03)" }}>
+            {headers.map((h, i) => (
+              <th key={i} style={{ padding: "10px 14px", color: "#f0f4ff", fontWeight: 600 }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} style={{ borderBottom: i === rows.length - 1 ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+              {row.map((cell, j) => (
+                <td key={j} style={{ padding: "10px 14px", color: "#c8d8f0" }}>
+                  {renderInline(cell)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export function MarkdownRenderer({ text }) {
   const lines = text.split("\n")
+  const blocks = []
+  let tableLines = []
+
+  lines.forEach((line) => {
+    const trimmed = line.trim()
+    if (trimmed.startsWith("|") && trimmed.indexOf("|", 1) !== -1) {
+      tableLines.push(trimmed)
+    } else {
+      if (tableLines.length > 0) {
+        blocks.push({ type: "table", lines: tableLines })
+        tableLines = []
+      }
+      blocks.push({ type: "line", content: line })
+    }
+  })
+
+  if (tableLines.length > 0) {
+    blocks.push({ type: "table", lines: tableLines })
+  }
 
   return (
     <div>
-      {lines.map((line, i) => {
+      {blocks.map((block, i) => {
+        if (block.type === "table") {
+          return parseTable(block.lines, `table-${i}`)
+        }
+
+        const line = block.content
         // Blank line → spacer
         if (!line.trim()) {
           return <div key={i} style={{ height: 8 }} />

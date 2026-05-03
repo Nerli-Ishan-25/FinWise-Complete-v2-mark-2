@@ -24,7 +24,7 @@
 .fw-assistant::before {
   content:  '';
   position: absolute;
-  top: -140px; left: -100px;
+  top: -140px; left: 200px;
   width: 500px; height: 500px;
   background: radial-gradient(ellipse, var(--green-dim) 0%, transparent 68%);
   pointer-events: none;
@@ -56,8 +56,8 @@
 .fw-sidebar {
   position:   relative;
   z-index:    2;
-  background: var(--bg-input);
-  border-right: 1px solid var(--border);
+  background: transparent; /* Blended with background */
+  border-right: 1px solid transparent; /* Blended with background */
   display:    flex;
   flex-direction: column;
   overflow-y: auto;
@@ -86,7 +86,7 @@
   position:   relative;
   z-index:    2;
   padding:    0 30px 20px 30px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid transparent; /* Blended with background */
   display:    flex;
   align-items: center;
   justify-content: space-between;
@@ -115,7 +115,7 @@
   position:   relative;
   z-index:    2;
   padding:    18px 30px 22px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid transparent; /* Blended with background */
   flex-shrink: 0;
   background: linear-gradient(0deg, rgba(10,15,26,0.98) 0%, rgba(10,15,26,0.7) 100%);
   backdrop-filter: blur(16px);
@@ -632,3 +632,12 @@
   color: white !important;
   box-shadow: none !important;
 }
+
+.light-theme .fw-header {
+  background: linear-gradient(180deg, rgba(245,247,251,0.95) 0%, rgba(245,247,251,0.6) 100%);
+}
+
+.light-theme .fw-footer {
+  background: linear-gradient(0deg, rgba(245,247,251,0.98) 0%, rgba(245,247,251,0.7) 100%);
+}
+
