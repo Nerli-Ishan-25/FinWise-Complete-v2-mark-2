@@ -10,14 +10,14 @@ const STATIC_SUBS = [
 ]
 
 const COLORS = ["var(--amber-dim)","var(--blue-dim)","var(--red-dim)","var(--green-dim)"]
-const DOTS   = ["#ffab40","#448aff","#ff5252","#00e676"]
+const DOTS   = ["#ffab40","#6C63FF","#E8534A","#00C896"]
 
 const METRICS = [
-  { name:"Savings Rate",    color:"#00e676" },
+  { name:"Savings Rate",    color:"#00C896" },
   { name:"Debt Ratio",      color:"#ffab40" },
-  { name:"Emergency Fund",  color:"#ffab40" },
-  { name:"Spending Control",color:"#00e676" },
-  { name:"Net Worth Growth",color:"#00e676" },
+  { name:"Emergency Fund",  color:"#52B788" },
+  { name:"Spending Control",color:"#00C896" },
+  { name:"Net Worth Growth",color:"#2D6A4F" },
 ]
 
 export default function Insights() {
@@ -68,10 +68,10 @@ export default function Insights() {
           <div className="chart-title">◎ Financial Health Score</div>
           <div style={{ position:"relative", textAlign:"center", margin:"10px 0 24px" }}>
             <svg width="200" height="120" viewBox="0 0 200 120" style={{ overflow:"visible" }}>
-              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="14" strokeLinecap="round"/>
-              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00e676" strokeWidth="14" strokeLinecap="round"
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--border)" strokeWidth="14" strokeLinecap="round"/>
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#00C896" strokeWidth="14" strokeLinecap="round"
                 strokeDasharray={`${(scoreDisplay/100)*251} 251`}
-                style={{ filter:"drop-shadow(0 0 8px rgba(0,230,118,0.5))" }}/>
+                style={{ filter:"drop-shadow(0 0 8px rgba(0,200,150,0.4))" }}/>
             </svg>
             <div style={{ position:"absolute", bottom:0, left:"50%", transform:"translateX(-50%)" }}>
               <div className="score-number">{scoreDisplay}</div>
@@ -168,7 +168,7 @@ export default function Insights() {
                 {[
                   { icon:"🔔", title:"Subscription Overload", body:`You're spending ${formatCurrency(totalMonthly)}/month on subscriptions.`, color:"var(--amber-dim)", dot:"#ffab40" },
                   { icon:"📈", title:"Invest Your Surplus",   body:"Consider moving surplus savings to a diversified index fund.",       color:"var(--blue-dim)",  dot:"#448aff" },
-                  { icon:"✅", title:"Keep Tracking",         body:"Add more transactions to unlock personalized AI recommendations.",    color:"var(--green-dim)", dot:"#00e676" },
+                  { icon:"✅", title:"Keep Tracking",         body:"Add more transactions to unlock personalized AI recommendations.",    color:"var(--green-dim)", dot:"#00C896" },
                 ].map(s => (
                   <div key={s.title} className="suggestion-card">
                     <div className="suggestion-icon" style={{ background:s.color }}>{s.icon}</div>

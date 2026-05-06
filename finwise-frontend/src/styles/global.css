@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -47,31 +47,48 @@
 }
 
 .light-theme {
-  --bg-base: #f5f7fb;
-  --bg-surface: #ffffff;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f8fafc;
-  --bg-input: #ffffff;
+  /* ── Sage-Green Eco-Fintech Light Theme ── */
+  --bg-base:        #F4F6F5;
+  --bg-surface:     #FFFFFF;
+  --bg-card:        #FFFFFF;
+  --bg-card-hover:  #F7FAF8;
+  --bg-input:       #FFFFFF;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-primary:   #1A2E27;
+  --text-secondary: #6B8F80;
+  --text-muted:     #8FAF9F;
 
-  --border: #dbe3ee;
-  --border-strong: #cbd5e1;
-  --border-light: #e2e8f0;
+  --border:         #DDE8E4;
+  --border-strong:  #C5D9D2;
+  --border-light:   #E8F0ED;
 
-  --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
-  --shadow-md: 0 8px 24px rgba(15,23,42,.08);
+  --shadow-sm:  0 1px 3px rgba(26,60,52,0.06), 0 1px 2px rgba(26,60,52,0.04);
+  --shadow-md:  0 8px 24px rgba(26,60,52,0.10), 0 2px 8px rgba(26,60,52,0.06);
 
-  --green: #059669;
-  --green-hover: #047857;
+  /* Brand accent — vibrant emerald */
+  --green:          #00C896;
+  --green-dim:      rgba(0,200,150,0.12);
+  --green-glow:     rgba(0,200,150,0.25);
+  --green-hover:    #00B385;
 
-  --nav-bg: #ffffff;
-  --sidebar-bg: #ffffff;
+  /* Danger — muted coral-red */
+  --red:            #E8534A;
+  --red-dim:        rgba(232,83,74,0.12);
+
+  /* Sidebar — deep forest green */
+  --sidebar-bg:     #1A3C34;
+  --nav-bg:         #1A3C34;
+
+  /* Font */
+  --font-body:      'Inter', 'DM Sans', sans-serif;
+
+  /* Icon filter: makes dark SVGs white when on dark sidebar */
+  --icon-filter:    brightness(0) invert(1) opacity(0.75);
 }
 
-/* --- LIGHT MODE COMPONENT OVERRIDES --- */
+/* ── LIGHT THEME — Component Overrides ─────────────────────────── */
+
+/* Cards & panels */
 .light-theme .card,
 .light-theme .stat-card,
 .light-theme .chart-card {
@@ -90,55 +107,251 @@
   transform: translateY(-1px);
 }
 
+/* Sidebar — deep forest green */
 .light-theme .sidebar {
-  border-right: 1px solid var(--border);
-  background: #ffffff;
-  box-shadow: 1px 0 2px rgba(15,23,42,.02);
+  background: #1A3C34;
+  border-right: none;
+  box-shadow: 2px 0 16px rgba(26,60,52,0.18);
 }
 
-.light-theme .btn-primary {
-  background: var(--green);
-  color: white;
+.light-theme .sidebar-logo {
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.light-theme .logo-text h2 {
+  color: #FFFFFF;
+}
+
+.light-theme .logo-text p {
+  color: #00C896;
+}
+
+.light-theme .logo-icon {
+  background: #00C896;
+  color: #1A3C34;
+}
+
+/* Nav links on dark sidebar */
+.light-theme .sidebar nav a {
+  color: rgba(255,255,255,0.60);
+}
+
+.light-theme .sidebar nav a:hover {
+  color: rgba(255,255,255,0.90);
+  background: rgba(255,255,255,0.07);
+}
+
+/* Active nav item — emerald pill with left accent border */
+.light-theme .sidebar nav a.active {
+  background: rgba(0,200,150,0.14);
+  color: #00C896;
+  border-left: 3px solid #00C896;
+  padding-left: 9px;
   font-weight: 600;
-  box-shadow: none;
+}
+
+/* Sidebar footer */
+.light-theme .sidebar-footer {
+  border-top-color: rgba(255,255,255,0.08);
+}
+
+.light-theme .sidebar-footer a,
+.light-theme .sidebar-footer button {
+  color: rgba(255,255,255,0.55);
+}
+
+.light-theme .sidebar-footer a:hover,
+.light-theme .sidebar-footer button:hover {
+  color: rgba(255,255,255,0.90);
+  background: rgba(255,255,255,0.07);
+}
+
+/* Net-worth widget inside dark sidebar */
+.light-theme .net-worth-widget {
+  background: rgba(0,200,150,0.13);
+  border: 1px solid rgba(0,200,150,0.22);
+}
+
+.light-theme .net-worth-widget .label {
+  color: #00C896;
+}
+
+.light-theme .net-worth-widget .amount {
+  color: #FFFFFF;
+}
+
+.light-theme .net-worth-widget .change {
+  color: rgba(255,255,255,0.55);
+}
+
+/* Buttons */
+.light-theme .btn-primary {
+  background: #00C896;
+  color: #0D2219;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,200,150,0.20);
 }
 
 .light-theme .btn-primary:hover {
-  background: var(--green-hover);
-  box-shadow: none;
+  background: #00B385;
+  box-shadow: 0 4px 14px rgba(0,200,150,0.30);
 }
 
 .light-theme .btn-outline {
-  background: white;
+  background: #FFFFFF;
   border: 1px solid var(--border);
   color: var(--text-primary);
 }
 
 .light-theme .btn-outline:hover {
-  background: var(--bg-card-hover);
+  background: var(--bg-base);
   border-color: var(--border-strong);
 }
 
+.light-theme .btn-icon {
+  background: var(--bg-base);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.light-theme .btn-icon:hover {
+  background: #FFFFFF;
+  color: var(--text-primary);
+}
+
+.light-theme .btn-danger {
+  background: rgba(232,83,74,0.10);
+  color: #E8534A;
+  border-color: rgba(232,83,74,0.20);
+}
+
+.light-theme .btn-danger:hover {
+  background: rgba(232,83,74,0.18);
+}
+
+/* Inputs */
 .light-theme .input-field {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
 }
 
 .light-theme .input-field:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+  border-color: #00C896;
+  box-shadow: 0 0 0 3px rgba(0,200,150,0.12);
 }
 
-.light-theme .net-worth-widget {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+.light-theme .input-field::placeholder {
+  color: var(--text-muted);
 }
-.light-theme .net-worth-widget .amount,
-.light-theme .net-worth-widget .label {
-  color: #064e3b;
+
+/* Filter tabs */
+.light-theme .filter-tab {
+  background: #FFFFFF;
+  border-color: var(--border);
+  color: var(--text-secondary);
 }
-.light-theme .net-worth-widget .change {
-  color: #065f46;
+
+.light-theme .filter-tab:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.light-theme .filter-tab.active {
+  background: #00C896;
+  color: #0D2219;
+  border-color: #00C896;
+  font-weight: 700;
+}
+
+/* Progress bars */
+.light-theme .progress-wrap {
+  background: var(--border);
+}
+
+/* Badges */
+.light-theme .badge-green { background: rgba(0,200,150,0.12); color: #008F69; }
+.light-theme .badge-red   { background: rgba(232,83,74,0.12); color: #C23B33; }
+.light-theme .badge-blue  { background: rgba(68,138,255,0.10); color: #2255CC; }
+.light-theme .badge-amber { background: rgba(255,171,64,0.12); color: #A0620A; }
+
+/* Stat-card change indicators */
+.light-theme .stat-change.up   { color: #008F69; }
+.light-theme .stat-change.down { color: #E8534A; }
+
+/* Transaction amounts */
+.light-theme .tx-amount.income  { color: #008F69; }
+.light-theme .tx-amount.expense { color: #E8534A; }
+
+/* Score gauge */
+.light-theme .score-number { color: #00C896; }
+
+/* Best-rate badge */
+.light-theme .best-rate { background: rgba(0,200,150,0.12); color: #008F69; }
+
+/* View-all link */
+.light-theme .view-all { color: #00C896; }
+
+/* Alert bar */
+.light-theme .alert-bar {
+  background: rgba(255,171,64,0.08);
+  border-color: rgba(255,171,64,0.25);
+  color: #9A6500;
+}
+
+.light-theme .alert-bar.danger {
+  background: rgba(232,83,74,0.08);
+  border-color: rgba(232,83,74,0.22);
+  color: #C23B33;
+}
+
+/* Table row hover */
+.light-theme .fin-table tbody tr:hover td { background: var(--bg-base); }
+
+/* Suggestion card */
+.light-theme .suggestion-card {
+  background: var(--bg-base);
+  border-color: var(--border);
+}
+
+/* Risk metric */
+.light-theme .risk-metric { background: var(--bg-base); }
+
+/* Modal */
+.light-theme .modal {
+  background: #FFFFFF;
+  border-color: var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Custom tooltip */
+.light-theme .custom-tooltip {
+  background: #FFFFFF;
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Recharts axis color */
+.light-theme .recharts-cartesian-axis-tick-value {
+  fill: var(--text-secondary) !important;
+}
+
+/* Divider */
+.light-theme .divider { background: var(--border); }
+
+/* Chart title icon color */
+.light-theme .chart-title svg { color: #00C896; }
+
+/* FAB — emerald on light bg */
+.light-theme .assistant-fab {
+  background: #00C896;
+  border-color: #00C896;
+  box-shadow: 0 4px 20px rgba(0,200,150,0.30);
+}
+
+.light-theme .assistant-fab:hover {
+  background: #00B385;
+  box-shadow: 0 6px 28px rgba(0,200,150,0.40);
 }
 
 html, body, #root {

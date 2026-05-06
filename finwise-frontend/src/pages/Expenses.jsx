@@ -77,8 +77,8 @@ export default function Expenses() {
               <XAxis dataKey="m" axisLine={false} tickLine={false} />
               <YAxis axisLine={false} tickLine={false} tickFormatter={v => formatCurrency(v, true)} />
               <Tooltip formatter={v => formatCurrency(v)} />
-              <Bar dataKey="income"  fill="#00e676" radius={[4,4,0,0]} />
-              <Bar dataKey="expense" fill="#ff5252" radius={[4,4,0,0]} />
+              <Bar dataKey="income"  fill="#00C896" radius={[4,4,0,0]} />
+              <Bar dataKey="expense" fill="#E8534A" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
           {monthlyTrends.length === 0 && (

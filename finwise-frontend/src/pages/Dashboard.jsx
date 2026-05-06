@@ -102,10 +102,10 @@ export default function Dashboard() {
         <StatCard title="Net Worth"
           value={formatCurrency(netWorth)}
           change={"+" + formatCurrency(2200) + " this month"} changeUp={netWorth >= 0}
-          icon={<TrendingUp size={15} color={netWorth >= 0 ? "#00e676" : "#ff5252"}/>}
-          iconBg={netWorth >= 0 ? "rgba(0,230,118,0.1)" : "rgba(255,82,82,0.1)"} />
+          icon={<TrendingUp size={15} color={netWorth >= 0 ? "#00C896" : "#E8534A"}/>}
+          iconBg={netWorth >= 0 ? "rgba(0,200,150,0.12)" : "rgba(232,83,74,0.12)"} />
         <StatCard title="Monthly Income"   value={formatCurrency(monthlyIncome)}        sub="This month's income"                    icon={<DollarSign size={15} color="#448aff"/>} iconBg="rgba(68,138,255,0.1)" />
-        <StatCard title="Monthly Expenses" value={formatCurrency(monthlyExpenses)}            change={Math.round((monthlyExpenses / (monthlyIncome||1)) * 100) + "% of income"} changeUp={false} icon={<ShoppingCart size={15} color="#ff5252"/>} iconBg="rgba(255,82,82,0.1)" />
+        <StatCard title="Monthly Expenses" value={formatCurrency(monthlyExpenses)}            change={Math.round((monthlyExpenses / (monthlyIncome||1)) * 100) + "% of income"} changeUp={false} icon={<ShoppingCart size={15} color="#E8534A"/>} iconBg="rgba(232,83,74,0.12)" />
         <StatCard title="Savings Rate"     value={savingsRate.toFixed(1) + "%"}                change={formatCurrency(monthlyIncome - monthlyExpenses) + " saved"} changeUp={true} icon={<PiggyBank size={15} color="#ffab40"/>} iconBg="rgba(255,171,64,0.1)" />
       </div>
 
@@ -117,17 +117,17 @@ export default function Dashboard() {
             <AreaChart data={monthlyTrends} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="gi" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00e676" stopOpacity={0.25}/><stop offset="95%" stopColor="#00e676" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#00C896" stopOpacity={0.25}/><stop offset="95%" stopColor="#00C896" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="ge" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ff5252" stopOpacity={0.2}/><stop offset="95%" stopColor="#ff5252" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#E8534A" stopOpacity={0.2}/><stop offset="95%" stopColor="#E8534A" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <XAxis dataKey="m" axisLine={false} tickLine={false}/>
               <YAxis axisLine={false} tickLine={false} tickFormatter={v=>formatCurrency(v, true)}/>
               <Tooltip content={<CustomTooltip formatter={formatCurrency} />}/>
-              <Area type="monotone" dataKey="income"  stroke="#00e676" strokeWidth={2} fill="url(#gi)"/>
-              <Area type="monotone" dataKey="expense" stroke="#ff5252" strokeWidth={2} fill="url(#ge)"/>
+              <Area type="monotone" dataKey="income"  stroke="#00C896" strokeWidth={2} fill="url(#gi)"/>
+              <Area type="monotone" dataKey="expense" stroke="#E8534A" strokeWidth={2} fill="url(#ge)"/>
             </AreaChart>
           </ResponsiveContainer>
           {monthlyTrends.length === 0 && (
@@ -181,7 +181,7 @@ export default function Dashboard() {
               <XAxis dataKey="m" axisLine={false} tickLine={false}/>
               <YAxis axisLine={false} tickLine={false} tickFormatter={v=>formatCurrency(v, true)}/>
               <Tooltip formatter={v=>formatCurrency(v)}/>
-              <Line type="monotone" dataKey="val" stroke="#00e676" strokeWidth={2.5} dot={false}/>
+              <Line type="monotone" dataKey="val" stroke="#00C896" strokeWidth={2.5} dot={false}/>
             </LineChart>
           </ResponsiveContainer>
           {netWorthHistory.length === 0 && (

@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, Trash2, Plus, Edit2 } from "lucide-react"
 import Modal from "../components/Modal"
 import { useFinance } from "../context/FinanceContext"
 
-const ASSET_COLORS = ["#b388ff", "#448aff", "#ffab40", "#00e676", "#40c4ff", "#ff80ab"]
+const ASSET_COLORS = ["#00C896", "#2D6A4F", "#52B788", "#B7E4C7", "#6C63FF", "#E8534A"]
 const ASSET_TYPES  = ["Savings", "Stocks", "Crypto", "Property", "Other"]
 const ASSET_ICONS  = { Savings: "🏦", Stocks: "📈", Crypto: "₿", Property: "🏠", Other: "💼" }
 
@@ -145,7 +145,7 @@ export default function NetWorth() {
             {assets.length === 0 && <div className="empty">No assets yet — add one above</div>}
             {assets.map((a) => (
               <div key={a.id} className="tx-item">
-                <div className="tx-icon" style={{ background: "rgba(0,230,118,0.08)", fontSize: 17 }}>
+                <div className="tx-icon" style={{ background: "rgba(0,200,150,0.10)", fontSize: 17 }}>
                   {ASSET_ICONS[a.type] || "💼"}
                 </div>
                 <div className="tx-info">

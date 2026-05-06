@@ -3,7 +3,7 @@ import { Plus, Trash2, AlertCircle, Calculator, Edit2, BarChart2 } from "lucide-
 import Modal from "../components/Modal"
 import { useFinance } from "../context/FinanceContext"
 
-const BAR_COLORS = ["#448aff","#00e676","#ffab40","#b388ff","#ff5252","#40c4ff","#ff80ab","#64ffda"]
+const BAR_COLORS = ["#00C896","#2D6A4F","#52B788","#6C63FF","#E8534A","#B7E4C7","#52B788","#2D6A4F"]
 
 const FREQ_OPTIONS = ["Weekly", "Monthly", "Yearly"]
 
@@ -22,12 +22,12 @@ function freqLabel(freq) {
 }
 
 const DEMO_BUDGET = [
-  { id: 1, category: "Housing",       budget: 1200, spent: 1200, color: "#448aff" },
-  { id: 2, category: "Food",          budget: 400,  spent: 320,  color: "#00e676" },
-  { id: 3, category: "Transport",     budget: 200,  spent: 180,  color: "#ffab40" },
-  { id: 4, category: "Subscriptions", budget: 100,  spent: 87,   color: "#b388ff" },
-  { id: 5, category: "Entertainment", budget: 200,  spent: 150,  color: "#ff5252" },
-  { id: 6, category: "Health",        budget: 150,  spent: 95,   color: "#40c4ff" },
+  { id: 1, category: "Housing",       budget: 1200, spent: 1200, color: "#2D6A4F" },
+  { id: 2, category: "Food",          budget: 400,  spent: 320,  color: "#00C896" },
+  { id: 3, category: "Transport",     budget: 200,  spent: 180,  color: "#52B788" },
+  { id: 4, category: "Subscriptions", budget: 100,  spent: 87,   color: "#6C63FF" },
+  { id: 5, category: "Entertainment", budget: 200,  spent: 150,  color: "#E8534A" },
+  { id: 6, category: "Health",        budget: 150,  spent: 95,   color: "#B7E4C7" },
 ]
 
 function BudgetCard({ item, isDemo, onDelete, onEdit }) {
@@ -37,10 +37,10 @@ function BudgetCard({ item, isDemo, onDelete, onEdit }) {
   const pct    = budget > 0 ? Math.min(Math.round((spent / budget) * 100), 100) : 0
   const left   = budget - spent
   const over   = spent > budget
-  const color  = pct >= 100 ? "#ff5252" : pct >= 80 ? "#ffab40" : item.color || "#00e676"
+  const color  = pct >= 100 ? "#E8534A" : pct >= 80 ? "#ffab40" : item.color || "#00C896"
 
   return (
-    <div className="card" style={{ borderColor: over ? "rgba(255,82,82,0.3)" : "var(--border)" }}>
+    <div className="card" style={{ borderColor: over ? "rgba(232,83,74,0.30)" : "var(--border)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
         <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600 }}>
           {item.category ?? item.category_name ?? "Category"}
@@ -176,7 +176,7 @@ export default function BudgetPlanner() {
           <div className="progress-wrap">
             <div className="progress-bar" style={{
               width: Math.min(overallUtilization, 100) + "%",
-              background: overallUtilization >= 100 ? "#ff5252" : overallUtilization >= 80 ? "#ffab40" : "#00e676"
+              background: overallUtilization >= 100 ? "#E8534A" : overallUtilization >= 80 ? "#ffab40" : "#00C896"
             }} />
           </div>
         </div>

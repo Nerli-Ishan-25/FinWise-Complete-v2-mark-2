@@ -86,12 +86,22 @@ export function FinanceProvider({ children }) {
   }, [transactions])
 
   const CATEGORY_COLORS = {
-    Housing: "#448aff", Food: "#00e676", Transport: "#ffab40",
-    Subscriptions: "#b388ff", Entertainment: "#ff5252",
-    Health: "#40c4ff", Income: "#64ffda", Other: "#ff80ab",
-    Shopping: "#f06292", Utilities: "#9575cd", Investments: "#81c784",
-    Bills: "#e57373", Personal: "#ba68c8", Education: "#4db6ac",
-    Insurance: "#7986cb", Travel: "#ffb74d"
+    Food:          "#00C896",
+    Housing:       "#2D6A4F",
+    Transport:     "#52B788",
+    Health:        "#B7E4C7",
+    Subscriptions: "#6C63FF",
+    Entertainment: "#E8534A",
+    Income:        "#00C896",
+    Shopping:      "#52B788",
+    Utilities:     "#2D6A4F",
+    Investments:   "#B7E4C7",
+    Bills:         "#E8534A",
+    Personal:      "#6C63FF",
+    Education:     "#52B788",
+    Insurance:     "#2D6A4F",
+    Travel:        "#B7E4C7",
+    Other:         "#6C63FF",
   }
   const spendingByCategory = useMemo(() => {
     const MAP = {}
