@@ -1,0 +1,244 @@
+@page
+@model FinWise.Razor.Pages.NetWorthModel
+@{
+    ViewData["Title"] = "Net Worth";
+}
+
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="eyebrow">Track your wealth</div>
+        <h1>Net Worth</h1>
+    </div>
+    <div class="page-header-right">
+        <button class="btn btn-outline" onclick="document.getElementById('addLiabilityModal').style.display='flex'">+ Add Debt</button>
+        <button class="btn btn-primary" onclick="document.getElementById('addAssetModal').style.display='flex'">+ Add Asset</button>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">What you own</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Total Assets</div>
+        <div class="stat-value" style="color:var(--green)">@Model.TotalAssets.ToString("C")</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">What you owe</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Total Liabilities</div>
+        <div class="stat-value" style="color:var(--red)">@Model.TotalLiabilities.ToString("C")</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Your wealth</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Net Worth</div>
+        <div class="stat-value">@Model.NetWorth.ToString("C")</div>
+    </div>
+</div>
+
+<!-- Row: Asset Allocation Chart + Assets List -->
+<div class="grid-2-1" style="margin-bottom:20px">
+    <!-- Asset Allocation -->
+    <div class="chart-card">
+        <div class="chart-title">✦ Asset Allocation</div>
+        <div style="position:relative;height:200px"><canvas id="allocationChart"></canvas></div>
+        <div id="allocationLegend" style="margin-top:16px"></div>
+        @if (!Model.Assets.Any())
+        {
+            <div class="empty" style="text-align:center;padding:20px 0;color:var(--text-secondary);font-size:13px">No assets recorded yet</div>
+        }
+    </div>
+
+    <!-- Assets List -->
+    <div class="card" style="padding:0">
+        <div style="padding:18px 22px 12px;display:flex;align-items:center;gap:8px">
+            <span style="color:var(--green);font-size:14px">✧</span>
+            <span class="section-title" style="margin-bottom:0;font-size:14px;color:var(--green)">Assets</span>
+        </div>
+        <div>
+            @foreach (var asset in Model.Assets.OrderByDescending(a => a.Value))
+            {
+                var typeIcon = asset.Type switch {
+                    "Cash" => "💰",
+                    "Investments" or "Stocks" => "📈",
+                    "Real Estate" or "Property" => "🏠",
+                    _ => "📦"
+                };
+                <div class="tx-item" style="padding:11px 22px">
+                    <div class="tx-icon" style="background:rgba(0,230,118,0.08)">@typeIcon</div>
+                    <div class="tx-info">
+                        <div class="tx-name">@asset.Name</div>
+                        <div class="tx-sub">@asset.Type</div>
+                    </div>
+                    <div class="tx-amount income">@asset.Value.ToString("C")</div>
+                    <form method="post" asp-page-handler="DeleteAsset" style="display:inline;margin-left:8px">
+                        <input type="hidden" name="id" value="@asset.Id" />
+                        <button type="submit" class="btn-danger" onclick="return confirm('Delete this asset?');" style="padding:4px 6px">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </form>
+                </div>
+            }
+            @if (!Model.Assets.Any())
+            {
+                <div style="text-align:center;padding:30px 0;color:var(--text-secondary);font-size:13px">No assets recorded</div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Liabilities List -->
+<div class="card" style="padding:0">
+    <div style="padding:18px 22px 12px;display:flex;align-items:center;gap:8px">
+        <span style="color:var(--red);font-size:14px">∿</span>
+        <span class="section-title" style="margin-bottom:0;font-size:14px;color:var(--red)">Liabilities</span>
+    </div>
+    <div>
+        @foreach (var liability in Model.Liabilities.OrderByDescending(l => l.Amount))
+        {
+            <div class="tx-item" style="padding:11px 22px">
+                <div class="tx-icon" style="background:rgba(255,82,82,0.08)">🏦</div>
+                <div class="tx-info">
+                    <div class="tx-name">@liability.Name</div>
+                    <div class="tx-sub">@liability.Type</div>
+                </div>
+                <div class="tx-amount expense">@liability.Amount.ToString("C")</div>
+                <form method="post" asp-page-handler="DeleteLiability" style="display:inline;margin-left:8px">
+                    <input type="hidden" name="id" value="@liability.Id" />
+                    <button type="submit" class="btn-danger" onclick="return confirm('Delete this liability?');" style="padding:4px 6px">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </form>
+            </div>
+        }
+        @if (!Model.Liabilities.Any())
+        {
+            <div style="text-align:center;padding:30px 0;color:var(--text-secondary);font-size:13px">No liabilities recorded</div>
+        }
+    </div>
+</div>
+
+<!-- Add Asset Modal -->
+<div class="modal-backdrop" id="addAssetModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Add Asset</div>
+            <button class="btn-ghost" onclick="document.getElementById('addAssetModal').style.display='none'" style="font-size:20px;padding:0">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="AddAsset">
+            <div class="form-grid">
+                <div class="input-group span-2">
+                    <label>Asset Name</label>
+                    <input asp-for="AssetInput.Name" class="input-field" placeholder="e.g. Savings Account" required />
+                </div>
+                <div class="input-group">
+                    <label>Type</label>
+                    <select asp-for="AssetInput.Type" class="input-field">
+                        <option value="Cash">Cash</option>
+                        <option value="Stocks">Stocks</option>
+                        <option value="Property">Property</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Value ($)</label>
+                    <input asp-for="AssetInput.Value" type="number" step="0.01" class="input-field" required />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('addAssetModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Asset</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Liability Modal -->
+<div class="modal-backdrop" id="addLiabilityModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Add Liability</div>
+            <button class="btn-ghost" onclick="document.getElementById('addLiabilityModal').style.display='none'" style="font-size:20px;padding:0">&times;</button>
+        </div>
+        <form method="post" asp-page-handler="AddLiability">
+            <div class="form-grid">
+                <div class="input-group span-2">
+                    <label>Name</label>
+                    <input asp-for="LiabilityInput.Name" class="input-field" placeholder="e.g. Mortgage" required />
+                </div>
+                <div class="input-group">
+                    <label>Type</label>
+                    <select asp-for="LiabilityInput.Type" class="input-field">
+                        <option value="Mortgage">Mortgage</option>
+                        <option value="Auto Loan">Auto Loan</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Student Loan">Student Loan</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Amount ($)</label>
+                    <input asp-for="LiabilityInput.Amount" type="number" step="0.01" class="input-field" required />
+                </div>
+                <div class="input-group">
+                    <label>Interest Rate (%)</label>
+                    <input asp-for="LiabilityInput.InterestRate" type="number" step="0.01" class="input-field" value="0" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('addLiabilityModal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Liability</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Floating Assistant Button -->
+<a href="/Assistant" class="assistant-fab" title="AI Assistant">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</a>
+
+@section Scripts {
+<script>
+    // Asset Allocation Doughnut
+    const assets = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Assets.Select(a => new { name = a.Name, value = a.Value, type = a.Type })));
+    if (assets && assets.length > 0) {
+        const colors = ['#b388ff','#448aff','#00e676','#ffab40','#ff5252','#40c4ff','#ff80ab','#64ffda'];
+        const ctx = document.getElementById('allocationChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: assets.map(a => a.name),
+                    datasets: [{
+                        data: assets.map(a => a.value),
+                        backgroundColor: assets.map((_, i) => colors[i % colors.length]),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '55%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+            // Build legend
+            const legend = document.getElementById('allocationLegend');
+            legend.innerHTML = assets.map((a, i) =>
+                `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span class="dot" style="background:${colors[i % colors.length]}"></span>
+                        <span style="color:var(--text-secondary)">${a.name}</span>
+                    </div>
+                    <span style="color:var(--text-primary);font-weight:700;font-family:var(--font-display)">$${a.value.toLocaleString()}</span>
+                </div>`
+            ).join('');
+        }
+    }
+</script>
+}

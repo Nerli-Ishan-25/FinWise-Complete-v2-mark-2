@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str | None = None
     GEMINI_API_KEY: str | None = None
     HF_API_KEY: str | None = None
+    OPENROUTER_API_KEY: str | None = None
     OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
 
@@ -33,5 +34,10 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
         extra = "ignore"
+
+# Force loading from .env by removing conflicting system environment variables
+for key in ["OLLAMA_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "OPENROUTER_API_KEY"]:
+    if key in os.environ:
+        del os.environ[key]
 
 settings = Settings()

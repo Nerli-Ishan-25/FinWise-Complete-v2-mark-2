@@ -57,7 +57,8 @@ export function useAssistant() {
 
     let aiContent
     try {
-      const { data } = await assistantAPI.chat(content)
+      const history = messages.map(m => ({ role: m.role, content: m.content }))
+      const { data } = await assistantAPI.chat(content, history)
       aiContent = data.reply
     } catch (err) {
       console.error("Assistant API error:", err)
