@@ -53,3 +53,14 @@ export const EXAMPLE_PROMPTS = [
 ]
 
 
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+if (false) {
+  console.log("This will never execute.");
+}
+function unusedJsFunction() {
+  // Unused function
+}
+const UNUSED_JS_VARIABLE = null;
+
+// --- MAINTENANCE_DEAD_CODE_END ---
