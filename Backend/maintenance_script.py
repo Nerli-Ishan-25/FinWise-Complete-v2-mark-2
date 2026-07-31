@@ -3,103 +3,165 @@ import random
 from datetime import datetime, timedelta
 from git import Repo
 
-# Set repository path manually since auto-detection might fail with custom Git setup
-repo = Repo(r'D:\FinWise-Complete-v2-mark-2')
+# Detect repository root dynamically relative to script location
+script_dir = os.path.dirname(os.path.abspath(__file__))
+repo_dir = os.path.abspath(os.path.join(script_dir, ".."))
+repo = Repo(repo_dir)
+
 
 def select_dead_code_blocks():
- python_dead_code = [
- 'def unused_python_function():\n """Unused docstring."""\n pass\n',
- 'if False:\n print("This will never execute.")\n',
- 'class UnusedPythonClass:\n pass\n'
- ]
- 
- js_dead_code = [
- 'function unusedJsFunction() {\n  // Unused function\n}',
- 'if (false) {\n  console.log("This will never execute.");\n}',
- 'const UNUSED_JS_VARIABLE = null;\n'
- ]
- 
- return {
- "python": random.sample(python_dead_code, 3),
- "javascript": random.sample(js_dead_code, 3)
- }
+    python_dead_code = [
+        'def unused_python_function():\n    """Unused docstring."""\n    pass\n',
+        'if False:\n    print("This will never execute.")\n',
+        'class UnusedPythonClass:\n    pass\n',
+    ]
 
-def insert_dead_code(file_path, dead_code_blocks):
- with open(file_path, 'a') as file:
- for block in dead_code_blocks:
- file.write('\n' + block + '\n')
+    js_dead_code = [
+        'function unusedJsFunction() {\n  // Unused function\n}',
+        'if (false) {\n  console.log("This will never execute.");\n}',
+        'const UNUSED_JS_VARIABLE = null;\n',
+    ]
 
-def remove_last_inserted_block(file_path):
- with open(file_path, 'r+') as file:
- lines = file.readlines()
- 
- # Find last blank line and remove everything after it until next non-blank line
- for i in reversed(range(len(lines))):
- if lines[i].strip() == '':
- del lines[i:]
- break
- 
- file.seek(0)
- file.writelines(lines)
- file.truncate()
+    return {
+        "python": random.sample(python_dead_code, 3),
+        "javascript": random.sample(js_dead_code, 3),
+    }
 
-# Track cycle state via Git config variable
-last_run_date_key = "maintenance:last_run"
+
+def insert_dead_code(file_path, dead_code_blocks, language):
+    marker_start = (
+        "# --- MAINTENANCE_DEAD_CODE_START ---"
+        if language == "python"
+        else "// --- MAINTENANCE_DEAD_CODE_START ---"
+    )
+    marker_end = (
+        "# --- MAINTENANCE_DEAD_CODE_END ---"
+        if language == "python"
+        else "// --- MAINTENANCE_DEAD_CODE_END ---"
+    )
+
+    with open(file_path, "a", encoding="utf-8") as file:
+        file.write("\n" + marker_start + "\n")
+        for block in dead_code_blocks:
+            file.write(block + "\n")
+        file.write(marker_end + "\n")
+
+
+def remove_last_inserted_block(file_path, language):
+    marker_start = (
+        "# --- MAINTENANCE_DEAD_CODE_START ---"
+        if language == "python"
+        else "// --- MAINTENANCE_DEAD_CODE_START ---"
+    )
+    marker_end = (
+        "# --- MAINTENANCE_DEAD_CODE_END ---"
+        if language == "python"
+        else "// --- MAINTENANCE_DEAD_CODE_END ---"
+    )
+
+    if not os.path.exists(file_path):
+        return
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+
+    start_idx = None
+    end_idx = None
+    for i in reversed(range(len(lines))):
+        if marker_end in lines[i]:
+            end_idx = i
+        elif marker_start in lines[i] and end_idx is not None:
+            start_idx = i
+            break
+
+    if start_idx is not None and end_idx is not None:
+        del lines[start_idx : end_idx + 1]
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.writelines(lines)
+
+
+def safe_commit(commit_message):
+    try:
+        if repo.is_dirty(index=False, working_tree=True):
+            repo.git.commit("-am", commit_message)
+    except Exception as e:
+        print(f"Commit skipped or failed: {e}")
+
+
+# Track cycle state via valid Git config variable (section.key format)
+last_run_date_key = "maintenance.lastrun"
 
 try:
- config_date_str = repo.git.config(f"--get {last_run_date_key}")
-except Exception:  
-# Key doesn't exist yet (first run)
-cycle_day_count = 0
- 
-else:  
-# Load existing date to calculate cycle day count
-config_date_obj = datetime.strptime(config_date_str, '%Y-%m-%d')
-today_date_obj = datetime.now()
-cycle_day_count = (today_date_obj - config_date_obj).days
- 
-finally:  
-# Update last run date regardless of action taken
-today_str = today_date_obj.strftime('%Y-%m-%d')
-repo.git.config(f"--local {last_run_date_key}", today_str)
+    config_date_str = repo.git.config(f"--get", last_run_date_key)
+    config_date_obj = datetime.strptime(config_date_str.strip(), "%Y-%m-%d")
+    today_date_obj = datetime.now()
+    cycle_day_count = (today_date_obj - config_date_obj).days
+
+except Exception:
+    # Key doesn't exist yet (first run)
+    cycle_day_count = 0
+    today_date_obj = datetime.now()
+
+finally:
+    # Update last run date regardless of action taken
+    today_str = today_date_obj.strftime("%Y-%m-%d")
+    repo.git.config("--local", last_run_date_key, today_str)
+
 
 file_paths_by_language = {
-"python": [
-r"D:\FinWise-Complete-v2-mark-2\Backend\app\api\admin_routes.py",
-r"D:\FinWise-Complete-v2-mark-2\Backend\app\api\assistant_routes.py"
-],
-"javascript": [
-r"D:\FinWise-Complete-v2-mark-2\AI-assistant-FRNTD\src\features\assistant\hooks\useAssistant.js",
-r"D:\FinWise-Complete-v2-mark-2\AI-assistant-FRNTD\src\features\assistant/constants/featureCards.js"
-]
+    "python": [
+        os.path.join(repo_dir, "Backend", "app", "api", "admin_routes.py"),
+        os.path.join(repo_dir, "Backend", "app", "api", "assistant_routes.py"),
+    ],
+    "javascript": [
+        os.path.join(
+            repo_dir,
+            "AI-assistant-FRNTD",
+            "src",
+            "features",
+            "assistant",
+            "hooks",
+            "useAssistant.js",
+        ),
+        os.path.join(
+            repo_dir,
+            "AI-assistant-FRNTD",
+            "src",
+            "features",
+            "assistant",
+            "constants",
+            "featureCards.js",
+        ),
+    ],
 }
+
 
 dead_code_dict = select_dead_code_blocks()
 
 for language in ["python", "javascript"]:
-files_to_edit = [file_paths_by_language[language][0], file_paths_by_language[language][1]]
-dead_code_blocks = dead_code_dict[language]
+    files_to_edit = file_paths_by_language[language]
+    dead_code_blocks = dead_code_dict[language]
 
-if cycle_day_count % 4 == 0:  
-# Day 1: Insert all dead code blocks into target files  
-for filepath in files_to_edit:
-insert_dead_code(filepath, dead_code_blocks)
+    if cycle_day_count % 4 == 0:
+        # Day 1: Insert all dead code blocks into target files
+        for filepath in files_to_edit:
+            insert_dead_code(filepath, dead_code_blocks, language)
 
-commit_message = "src code optimization"
-repo.git.commit("-am", commit_message)
+        commit_message = "src code optimization"
+        safe_commit(commit_message)
 
-elif cycle_day_count % 4 == 1 or cycle_day_count % 4 == 3:  
-# Day after initial insertion and cleanup phase before reset-remove first two blocks from each selected JavaScript/Python file  
-for filepath in files_to_edit:
-remove_last_inserted_block(filepath)  
+    elif cycle_day_count % 4 == 1 or cycle_day_count % 4 == 3:
+        # Cleanup phase - remove previously inserted blocks
+        for filepath in files_to_edit:
+            remove_last_inserted_block(filepath, language)
 
-commit_message = "Debugging API routes"
-repo.git.commit("-am", commit_message)  
+        commit_message = "Debugging API routes"
+        safe_commit(commit_message)
 
-elif cycle_day_count % 4 == 2 or cycle_day_count % 4 >= len(files_to_edit):  
-# Final cleanup phase-remove remaining blocks across all target files 
-for filepath in files_to_edit:
-remove_last_inserted_block(filepath)  
+    elif cycle_day_count % 4 == 2 or cycle_day_count % 4 >= len(files_to_edit):
+        # Final cleanup phase
+        for filepath in files_to_edit:
+            remove_last_inserted_block(filepath, language)
 
-commit_message = "src code optimization"
-repo.git.commit("-am", commit_message)
+        commit_message = "src code optimization"
+        safe_commit(commit_message)
