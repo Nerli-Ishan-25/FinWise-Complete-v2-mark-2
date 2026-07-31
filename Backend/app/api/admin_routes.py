@@ -52,3 +52,16 @@ def get_global_analytics(db: Session = Depends(get_db), current_admin: User = De
 
 
 
+
+# --- MAINTENANCE_DEAD_CODE_START ---
+if False:
+    print("This will never execute.")
+
+def unused_python_function():
+    """Unused docstring."""
+    pass
+
+class UnusedPythonClass:
+    pass
+
+# --- MAINTENANCE_DEAD_CODE_END ---

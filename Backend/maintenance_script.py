@@ -85,10 +85,23 @@ def safe_commit(commit_message):
         if repo.is_dirty(index=False, working_tree=True):
             repo.git.commit("-am", commit_message)
             print(f"Commit created: {commit_message}")
+            return True
         else:
             print("Working tree clean, no commit created.")
+            return False
     except Exception as e:
         print(f"Commit skipped or failed: {e}")
+        return False
+
+
+def safe_push():
+    try:
+        branch = repo.active_branch.name
+        print(f"Pushing commits to origin/{branch}...")
+        repo.git.push("origin", branch)
+        print(f"Successfully pushed to origin/{branch}")
+    except Exception as e:
+        print(f"Push to remote origin failed: {e}")
 
 
 file_paths_by_language = {
@@ -151,6 +164,8 @@ def run_maintenance():
         "Fixed minor route issues",
     ]
 
+    any_committed = False
+
     for language in ["python", "javascript"]:
         files_to_edit = file_paths_by_language[language]
         dead_code_blocks = dead_code_dict[language]
@@ -161,7 +176,8 @@ def run_maintenance():
                 insert_dead_code(filepath, dead_code_blocks, language)
 
             commit_message = random.choice(commit_messages_insert)
-            safe_commit(commit_message)
+            if safe_commit(commit_message):
+                any_committed = True
 
         else:
             # Cleanup Phase (Every odd day)
@@ -169,7 +185,12 @@ def run_maintenance():
                 remove_last_inserted_block(filepath, language)
 
             commit_message = random.choice(commit_messages_cleanup)
-            safe_commit(commit_message)
+            if safe_commit(commit_message):
+                any_committed = True
+
+    # Automatically push committed changes to origin
+    if any_committed or repo.git.rev_list("--count", f"origin/{repo.active_branch.name}..HEAD").strip() != "0":
+        safe_push()
 
 
 if __name__ == "__main__":
