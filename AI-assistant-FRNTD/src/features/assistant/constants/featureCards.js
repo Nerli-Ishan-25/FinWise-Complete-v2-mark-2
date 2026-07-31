@@ -52,24 +52,4 @@ export const EXAMPLE_PROMPTS = [
   "Am I saving enough?",
 ]
 
-// --- MAINTENANCE_DEAD_CODE_START ---
-if (false) {
-  console.log("This will never execute.");
-}
-const UNUSED_JS_VARIABLE = null;
 
-function unusedJsFunction() {
-  // Unused function
-}
-// --- MAINTENANCE_DEAD_CODE_END ---
-
-// --- MAINTENANCE_DEAD_CODE_START ---
-if (false) {
-  console.log("This will never execute.");
-}
-const UNUSED_JS_VARIABLE = null;
-
-function unusedJsFunction() {
-  // Unused function
-}
-// --- MAINTENANCE_DEAD_CODE_END ---

@@ -91,26 +91,6 @@ def safe_commit(commit_message):
         print(f"Commit skipped or failed: {e}")
 
 
-# Track cycle state via Git config variable (section.key format)
-last_run_date_key = "maintenance.lastrun"
-
-try:
-    config_date_str = repo.git.config(f"--get", last_run_date_key)
-    config_date_obj = datetime.strptime(config_date_str.strip(), "%Y-%m-%d")
-    today_date_obj = datetime.now()
-    cycle_day_count = (today_date_obj - config_date_obj).days
-
-except Exception:
-    # Key doesn't exist yet (first run)
-    cycle_day_count = 0
-    today_date_obj = datetime.now()
-
-finally:
-    # Update last run date regardless of action taken
-    today_str = today_date_obj.strftime("%Y-%m-%d")
-    repo.git.config("--local", last_run_date_key, today_str)
-
-
 file_paths_by_language = {
     "python": [
         os.path.join(repo_dir, "Backend", "app", "api", "admin_routes.py"),
@@ -139,28 +119,58 @@ file_paths_by_language = {
 }
 
 
-dead_code_dict = select_dead_code_blocks()
+def run_maintenance():
+    last_run_date_key = "maintenance.lastrun"
 
-# Daily alternating cycle (Even Days: Insert & Commit | Odd Days: Cleanup & Commit)
-commit_messages_insert = ["src code optimization", "Refactored API handlers", "Performance improvements"]
-commit_messages_cleanup = ["Debugging API routes", "Code cleanup and formatting", "Fixed minor route issues"]
+    try:
+        config_date_str = repo.git.config(f"--get", last_run_date_key)
+        config_date_obj = datetime.strptime(config_date_str.strip(), "%Y-%m-%d")
+        today_date_obj = datetime.now()
+        cycle_day_count = (today_date_obj - config_date_obj).days
 
-for language in ["python", "javascript"]:
-    files_to_edit = file_paths_by_language[language]
-    dead_code_blocks = dead_code_dict[language]
+    except Exception:
+        # Key doesn't exist yet (first run)
+        cycle_day_count = 0
+        today_date_obj = datetime.now()
 
-    if cycle_day_count % 2 == 0:
-        # Insertion Phase (Every even day)
-        for filepath in files_to_edit:
-            insert_dead_code(filepath, dead_code_blocks, language)
+    finally:
+        # Update last run date regardless of action taken
+        today_str = today_date_obj.strftime("%Y-%m-%d")
+        repo.git.config("--local", last_run_date_key, today_str)
 
-        commit_message = random.choice(commit_messages_insert)
-        safe_commit(commit_message)
+    dead_code_dict = select_dead_code_blocks()
 
-    else:
-        # Cleanup Phase (Every odd day)
-        for filepath in files_to_edit:
-            remove_last_inserted_block(filepath, language)
+    commit_messages_insert = [
+        "src code optimization",
+        "Refactored API handlers",
+        "Performance improvements",
+    ]
+    commit_messages_cleanup = [
+        "Debugging API routes",
+        "Code cleanup and formatting",
+        "Fixed minor route issues",
+    ]
 
-        commit_message = random.choice(commit_messages_cleanup)
-        safe_commit(commit_message)
+    for language in ["python", "javascript"]:
+        files_to_edit = file_paths_by_language[language]
+        dead_code_blocks = dead_code_dict[language]
+
+        if cycle_day_count % 2 == 0:
+            # Insertion Phase (Every even day)
+            for filepath in files_to_edit:
+                insert_dead_code(filepath, dead_code_blocks, language)
+
+            commit_message = random.choice(commit_messages_insert)
+            safe_commit(commit_message)
+
+        else:
+            # Cleanup Phase (Every odd day)
+            for filepath in files_to_edit:
+                remove_last_inserted_block(filepath, language)
+
+            commit_message = random.choice(commit_messages_cleanup)
+            safe_commit(commit_message)
+
+
+if __name__ == "__main__":
+    run_maintenance()
