@@ -12,13 +12,13 @@ repo = Repo(repo_dir)
 def select_dead_code_blocks():
     python_dead_code = [
         'def unused_python_function():\n    """Unused docstring."""\n    pass\n',
-        'if False:\n    print("This will never execute.")\n',
+        'if False:\n    print("Daily Maintenance run.")\n',
         'class UnusedPythonClass:\n    pass\n',
     ]
 
     js_dead_code = [
         'function unusedJsFunction() {\n  // Unused function\n}',
-        'if (false) {\n  console.log("This will never execute.");\n}',
+        'if (false) {\n  console.log("Test case run.");\n}',
         'const UNUSED_JS_VARIABLE = null;\n',
     ]
 
