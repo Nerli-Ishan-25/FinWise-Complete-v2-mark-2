@@ -84,11 +84,14 @@ def safe_commit(commit_message):
     try:
         if repo.is_dirty(index=False, working_tree=True):
             repo.git.commit("-am", commit_message)
+            print(f"Commit created: {commit_message}")
+        else:
+            print("Working tree clean, no commit created.")
     except Exception as e:
         print(f"Commit skipped or failed: {e}")
 
 
-# Track cycle state via valid Git config variable (section.key format)
+# Track cycle state via Git config variable (section.key format)
 last_run_date_key = "maintenance.lastrun"
 
 try:
@@ -138,30 +141,26 @@ file_paths_by_language = {
 
 dead_code_dict = select_dead_code_blocks()
 
+# Daily alternating cycle (Even Days: Insert & Commit | Odd Days: Cleanup & Commit)
+commit_messages_insert = ["src code optimization", "Refactored API handlers", "Performance improvements"]
+commit_messages_cleanup = ["Debugging API routes", "Code cleanup and formatting", "Fixed minor route issues"]
+
 for language in ["python", "javascript"]:
     files_to_edit = file_paths_by_language[language]
     dead_code_blocks = dead_code_dict[language]
 
-    if cycle_day_count % 4 == 0:
-        # Day 1: Insert all dead code blocks into target files
+    if cycle_day_count % 2 == 0:
+        # Insertion Phase (Every even day)
         for filepath in files_to_edit:
             insert_dead_code(filepath, dead_code_blocks, language)
 
-        commit_message = "src code optimization"
+        commit_message = random.choice(commit_messages_insert)
         safe_commit(commit_message)
 
-    elif cycle_day_count % 4 == 1 or cycle_day_count % 4 == 3:
-        # Cleanup phase - remove previously inserted blocks
+    else:
+        # Cleanup Phase (Every odd day)
         for filepath in files_to_edit:
             remove_last_inserted_block(filepath, language)
 
-        commit_message = "Debugging API routes"
-        safe_commit(commit_message)
-
-    elif cycle_day_count % 4 == 2 or cycle_day_count % 4 >= len(files_to_edit):
-        # Final cleanup phase
-        for filepath in files_to_edit:
-            remove_last_inserted_block(filepath, language)
-
-        commit_message = "src code optimization"
+        commit_message = random.choice(commit_messages_cleanup)
         safe_commit(commit_message)
