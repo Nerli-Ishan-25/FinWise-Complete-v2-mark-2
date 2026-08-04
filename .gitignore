@@ -77,3 +77,7 @@ out/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Maintenance Automation Scripts
+Backend/maintenance_script.py
+Backend/setup_task.ps1
