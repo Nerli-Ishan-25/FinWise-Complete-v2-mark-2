@@ -40,16 +40,3 @@ async def chat_with_assistant(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-# --- MAINTENANCE_DEAD_CODE_START ---
-if False:
-    print("This will never execute.")
-
-def unused_python_function():
-    """Unused docstring."""
-    pass
-
-class UnusedPythonClass:
-    pass
-
-# --- MAINTENANCE_DEAD_CODE_END ---
