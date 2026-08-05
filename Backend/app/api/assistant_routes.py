@@ -10,8 +10,11 @@ from app.services.finance_service import get_financial_profile_snapshot
 
 router = APIRouter()
 
+from typing import List, Dict, Any
+
 class ChatRequest(BaseModel):
     message: str
+    history: List[Dict[str, Any]] = []
 
 class ChatResponse(BaseModel):
     reply: str
@@ -31,7 +34,21 @@ async def chat_with_assistant(
         
     try:
         context_str = get_financial_profile_snapshot(db, current_user.id)
-        reply = await ai_assistant_service.generate_response(context_str, request.message)
+        reply = await ai_assistant_service.generate_response(context_str, request.message, request.history)
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+# --- MAINTENANCE_DEAD_CODE_START ---
+def unused_python_function():
+    """Unused docstring for maintenance."""
+    pass
+if False:
+    print("Daily Maintenance run.")
+class UnusedPythonClass:
+    pass
+# --- MAINTENANCE_DEAD_CODE_END ---

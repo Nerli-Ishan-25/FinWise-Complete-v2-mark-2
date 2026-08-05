@@ -1,0 +1,21 @@
+Idea,Category,Investment,Time-to-Market,Scalability,Margin,Regulatory,Fit
+Pet Grooming Salon,Service,Medium,"Medium (3–6m)",Medium,Medium,"Med (Pet Shop Reg.)","A, B"
+Mobile Pet Grooming,Service,High,"Long (6–9m)",Medium,Medium,"Med (Vehicle perm.)","B, C"
+Dog Walking / Pet Sitting,Service,Low,"Short (1–2m)",Low–Med,High,Low,"A, B"
+Pet Boarding/Daycare,Service,High,Medium,Medium,High,"High (Pet Shop License)","B, C"
+Dog Training Classes,Service,Low,Short,Low,High,Low,"A, B, C"
+Pet Photography,Service,Low,Short,Low,High,Low,A
+Pet Taxi/Transport,Service,Medium,Medium,Low–Med,Medium,"Med (Vehicle lic.)","A, B"
+Pet Waste Removal,Service,Low,Short,Medium,High,Low,"A, B"
+Pet Food Manufacturing,Product,High,Long,High,Medium,"High (FSSAI, PFA)","B, C"
+Pet Treats Bakery,Product,Low–Med,Short–Med,Medium,High,"Med (FSSAI)","A, B"
+Pet Accessories (E.g. toys),Product,Low–Med,Short–Med,Medium,High,Low,"A, B"
+Pet Apparel/Clothing,Product,Low–Med,Short–Med,Medium,Medium,Low,"A, B"
+Pet Store (Retail),Retail,Medium,"Medium (3–6m)",Medium,Medium,"Medium (GST)",B
+Pet E-commerce Platform,"Tech/Retail",Medium,Medium,High,High,"Medium (GST, IT)","B, C"
+Pet Subscription Box,Subscription,Medium,Medium,High,Medium,"Med (FSSAI for food)","A, B"
+Vet Clinic / Hospital,Health,High,Long,Low–Med,High,"High (Vet licens)",C
+Tele-Veterinary Service,"Health/Tech",Medium,Medium,High,Medium,"Low–Med (vet licens)","B, C"
+Pet Insurance Sales,"B2C Service",Low,Short,High,High,"High (IRDAI rules)","B, C"
+Pet Social Network App,"Tech/Community",Medium,Medium,High,High,"Low (data laws)","B, C"
+Pet Franchise (e.g. salon),Franchise,High,Medium,Medium,Medium,"Medium (contracts)","B, C"

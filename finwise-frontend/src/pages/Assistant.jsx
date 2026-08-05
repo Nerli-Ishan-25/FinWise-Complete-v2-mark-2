@@ -114,7 +114,7 @@ export default function Assistant() {
                   fontWeight:    500,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
-                  color:         "var(--text-secondary)",
+                  color:         "#3a5070",
                   marginBottom:  3,
                 }}
               >
@@ -127,7 +127,7 @@ export default function Assistant() {
                   fontWeight:    700,
                   letterSpacing: "-0.015em",
                   lineHeight:    1,
-                  color:         "var(--text-primary)",
+                  color:         "#f0f4ff",
                 }}
               >
                 Assistant

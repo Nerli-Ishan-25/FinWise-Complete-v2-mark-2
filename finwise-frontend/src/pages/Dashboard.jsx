@@ -5,7 +5,7 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer
 } from "recharts"
 import { TrendingUp, DollarSign, ShoppingCart, PiggyBank,
-         Activity, Bell, RefreshCw, ChevronRight } from "lucide-react"
+         Activity, ChevronRight } from "lucide-react"
 import StatCard from "../components/StatCard"
 import TransactionItem from "../components/TransactionItem"
 import Modal from "../components/Modal"
@@ -56,12 +56,6 @@ export default function Dashboard() {
   const [saving,    setSaving]    = useState(false)
   const [form, setForm] = useState({ name: "", category: "Food", type: "expense", amount: "", date: new Date().toISOString().split("T")[0] })
 
-  const currentMonthLabel = new Date().toLocaleString("default", { month: "long", year: "numeric" })
-
-  async function syncAll() {
-    await Promise.all([loadDashboard(), loadBudgets()])
-  }
-
   const recent = transactions.slice(0, 6)
 
   async function handleSave() {
@@ -87,14 +81,7 @@ export default function Dashboard() {
     <div>
       <div className="page-header">
         <div className="page-header-left">
-          <div className="eyebrow">Good morning ☀️ — {currentMonthLabel}</div>
           <h1>Financial Overview</h1>
-        </div>
-        <div className="page-header-right">
-          <button className="btn btn-outline"><Bell size={14} /> Alerts</button>
-          <button className="btn btn-primary" onClick={syncAll} disabled={loading}>
-            <RefreshCw size={14} className={loading ? "spin" : ""} /> Sync
-          </button>
         </div>
       </div>
 

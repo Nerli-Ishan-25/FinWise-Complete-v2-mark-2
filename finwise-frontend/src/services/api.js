@@ -111,7 +111,7 @@ export const insightsAPI = {
 
 // ── Assistant ─────────────────────────────────────────────────────────
 export const assistantAPI = {
-  chat: (message) => api.post("/assistant/chat", { message }),
+  chat: (message, history = []) => api.post("/assistant/chat", { message, history }),
 }
 
 export default api
