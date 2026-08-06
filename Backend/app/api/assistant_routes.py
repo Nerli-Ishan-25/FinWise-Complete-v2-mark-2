@@ -44,13 +44,3 @@ async def chat_with_assistant(
 
 
 
-
-# --- MAINTENANCE_DEAD_CODE_START ---
-# Maintenance routine marker
-UNUSED_FLAG = True
-if False:
-    print("Daily Maintenance run.")
-def unused_python_function():
-    """Unused docstring for maintenance."""
-    pass
-# --- MAINTENANCE_DEAD_CODE_END ---
