@@ -56,3 +56,15 @@ export const EXAMPLE_PROMPTS = [
 
 
 
+
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+// Maintenance routine marker
+const MAINTENANCE_ACTIVE = true;
+if (false) {
+  console.log("Daily maintenance run.");
+}
+function unusedJsFunction() {
+  // Unused function for maintenance
+}
+// --- MAINTENANCE_DEAD_CODE_END ---
