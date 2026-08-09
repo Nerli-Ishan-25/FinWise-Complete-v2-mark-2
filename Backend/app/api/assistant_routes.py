@@ -48,12 +48,3 @@ async def chat_with_assistant(
 
 
 
-
-# --- MAINTENANCE_DEAD_CODE_START ---
-if False:
-    print("Daily Maintenance run.")
-# Maintenance routine marker
-UNUSED_FLAG = True
-class UnusedPythonClass:
-    pass
-# --- MAINTENANCE_DEAD_CODE_END ---
