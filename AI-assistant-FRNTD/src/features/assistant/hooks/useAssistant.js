@@ -166,3 +166,14 @@ export function useAssistant() {
 
 
 
+
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+if (false) {
+  console.log("Daily maintenance run.");
+}
+function unusedJsFunction() {
+  // Unused function for maintenance
+}
+const UNUSED_JS_VARIABLE = null;
+// --- MAINTENANCE_DEAD_CODE_END ---
