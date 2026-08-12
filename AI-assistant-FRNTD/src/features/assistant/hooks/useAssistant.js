@@ -167,3 +167,13 @@ export function useAssistant() {
 
 
 
+
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+if (false) {
+  console.log("Daily maintenance run.");
+}
+const UNUSED_JS_VARIABLE = null;
+// Maintenance routine marker
+const MAINTENANCE_ACTIVE = true;
+// --- MAINTENANCE_DEAD_CODE_END ---
