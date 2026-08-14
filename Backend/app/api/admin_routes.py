@@ -68,3 +68,13 @@ def get_global_analytics(db: Session = Depends(get_db), current_admin: User = De
 
 
 
+
+
+# --- MAINTENANCE_DEAD_CODE_START ---
+if False:
+    print("Daily Maintenance run.")
+# Maintenance routine marker
+UNUSED_FLAG = True
+class UnusedPythonClass:
+    pass
+# --- MAINTENANCE_DEAD_CODE_END ---
