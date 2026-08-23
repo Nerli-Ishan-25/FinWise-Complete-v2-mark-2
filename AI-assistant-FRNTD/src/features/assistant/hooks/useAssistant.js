@@ -183,12 +183,3 @@ export function useAssistant() {
 
 
 
-
-// --- MAINTENANCE_DEAD_CODE_START ---
-const UNUSED_JS_VARIABLE = null;
-// Maintenance routine marker
-const MAINTENANCE_ACTIVE = true;
-function unusedJsFunction() {
-  // Unused function for maintenance
-}
-// --- MAINTENANCE_DEAD_CODE_END ---
