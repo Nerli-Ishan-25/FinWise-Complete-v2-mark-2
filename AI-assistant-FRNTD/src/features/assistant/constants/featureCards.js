@@ -83,3 +83,14 @@ export const EXAMPLE_PROMPTS = [
 
 
 
+
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+function unusedJsFunction() {
+  // Unused function for maintenance
+}
+const UNUSED_JS_VARIABLE = null;
+if (false) {
+  console.log("Daily maintenance run.");
+}
+// --- MAINTENANCE_DEAD_CODE_END ---
