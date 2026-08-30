@@ -88,3 +88,13 @@ export const EXAMPLE_PROMPTS = [
 
 
 
+
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+// Maintenance routine marker
+const MAINTENANCE_ACTIVE = true;
+const UNUSED_JS_VARIABLE = null;
+function unusedJsFunction() {
+  // Unused function for maintenance
+}
+// --- MAINTENANCE_DEAD_CODE_END ---
