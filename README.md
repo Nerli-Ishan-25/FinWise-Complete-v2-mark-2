@@ -161,3 +161,4 @@ For a detailed breakdown on how to use the application, including:
 - **Authentication**: Managing secure sessions.
 
 Please refer to the enclosed [`MANUAL.md`](./MANUAL.md) file.
+.
