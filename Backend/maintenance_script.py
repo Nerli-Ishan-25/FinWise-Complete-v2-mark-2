@@ -61,12 +61,12 @@ MARKERS = {
     "python": {
         "start": "# --- MAINTENANCE_DEAD_CODE_START ---",
         "end": "# --- MAINTENANCE_DEAD_CODE_END ---",
-        "pattern": r"\n?# --- MAINTENANCE_DEAD_CODE_START ---[\s\S]*?# --- MAINTENANCE_DEAD_CODE_END ---\n?",
+        "pattern": r"\s*# --- MAINTENANCE_DEAD_CODE_START ---[\s\S]*?# --- MAINTENANCE_DEAD_CODE_END ---\s*",
     },
     "javascript": {
         "start": "// --- MAINTENANCE_DEAD_CODE_START ---",
         "end": "// --- MAINTENANCE_DEAD_CODE_END ---",
-        "pattern": r"\n?// --- MAINTENANCE_DEAD_CODE_START ---[\s\S]*?// --- MAINTENANCE_DEAD_CODE_END ---\n?",
+        "pattern": r"\s*// --- MAINTENANCE_DEAD_CODE_START ---[\s\S]*?// --- MAINTENANCE_DEAD_CODE_END ---\s*",
     },
 }
 
@@ -136,11 +136,18 @@ def insert_dead_code(file_path, dead_code_blocks, language):
     m_end = MARKERS[language]["end"]
 
     try:
-        with open(file_path, "a", encoding="utf-8") as f:
-            f.write("\n\n" + m_start + "\n")
-            for block in dead_code_blocks:
-                f.write(block.rstrip() + "\n")
-            f.write(m_end + "\n")
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        content = content.rstrip()
+        new_content = content + "\n\n" + m_start + "\n"
+        for block in dead_code_blocks:
+            new_content += block.rstrip() + "\n"
+        new_content += m_end + "\n"
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
         logger.info(f"Inserted maintenance code into {os.path.basename(file_path)}")
         return True
     except Exception as e:
@@ -149,7 +156,7 @@ def insert_dead_code(file_path, dead_code_blocks, language):
 
 
 def remove_all_inserted_blocks(file_path, language):
-    """Removes ALL maintenance dead code blocks from the specified file."""
+    """Removes ALL maintenance dead code blocks from the specified file and cleans up whitespace."""
     if not os.path.exists(file_path):
         logger.warning(f"Skipping cleanup. File does not exist: {file_path}")
         return False
@@ -160,8 +167,9 @@ def remove_all_inserted_blocks(file_path, language):
 
         pattern = MARKERS[language]["pattern"]
         new_content, count = re.subn(pattern, "", content)
+        new_content = new_content.rstrip() + "\n"
 
-        if count > 0:
+        if count > 0 or new_content != content:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
             logger.info(f"Removed {count} maintenance code block(s) from {os.path.basename(file_path)}")
@@ -180,20 +188,20 @@ def remove_all_inserted_blocks(file_path, language):
 
 def ensure_git_identity(repo):
     """Ensures Git user.name and user.email are set for the repository session."""
-    with repo.config_writer() as config:
-        try:
-            name = repo.git.config("--get", "user.name")
-        except GitCommandError:
-            name = None
-        try:
-            email = repo.git.config("--get", "user.email")
-        except GitCommandError:
-            email = None
+    try:
+        name = repo.git.config("--get", "user.name")
+    except Exception:
+        name = None
+    try:
+        email = repo.git.config("--get", "user.email")
+    except Exception:
+        email = None
 
-        if not name:
+    with repo.config_writer() as config:
+        if not name or not name.strip():
             config.set_value("user", "name", "Maintenance Automation Bot")
             logger.info("Set fallback Git user.name: Maintenance Automation Bot")
-        if not email:
+        if not email or not email.strip():
             config.set_value("user", "email", "maintenance-bot@users.noreply.github.com")
             logger.info("Set fallback Git user.email")
 
@@ -236,16 +244,21 @@ def stage_and_commit(repo, modified_files, commit_message):
 def push_with_retry(repo, max_retries=3, delay_seconds=5):
     """Pushes local branch to origin with fetch/rebase and retry logic."""
     try:
-        active_branch = repo.active_branch.name
-        if active_branch != TARGET_BRANCH:
-            logger.info(f"Switching branch from '{active_branch}' to '{TARGET_BRANCH}' for pushing...")
+        if repo.head.is_detached or repo.active_branch.name != TARGET_BRANCH:
+            logger.info(f"Switching branch to '{TARGET_BRANCH}' for pushing...")
             repo.git.checkout(TARGET_BRANCH)
             active_branch = TARGET_BRANCH
+        else:
+            active_branch = repo.active_branch.name
     except Exception:
         # Handle detached HEAD state gracefully
         logger.warning(f"Repository is in detached HEAD state. Attempting checkout to '{TARGET_BRANCH}'...")
-        repo.git.checkout(TARGET_BRANCH)
-        active_branch = repo.active_branch.name
+        try:
+            repo.git.checkout(TARGET_BRANCH)
+            active_branch = TARGET_BRANCH
+        except Exception as co_err:
+            logger.error(f"Failed to checkout '{TARGET_BRANCH}': {co_err}")
+            return False
 
     logger.info(f"Preparing to push branch '{active_branch}' to origin...")
 
@@ -254,8 +267,15 @@ def push_with_retry(repo, max_retries=3, delay_seconds=5):
         repo.git.fetch("origin", active_branch)
         behind_count = repo.git.rev_list("--count", f"HEAD..origin/{active_branch}").strip()
         if behind_count != "0":
-            logger.info(f"Local branch is behind origin/{active_branch} by {behind_count} commit(s). Rebasing...")
-            repo.git.rebase(f"origin/{active_branch}")
+            logger.info(f"Local branch is behind origin/{active_branch} by {behind_count} commit(s). Rebasing with autostash...")
+            try:
+                repo.git.rebase(f"origin/{active_branch}", "--autostash")
+            except GitCommandError as rebase_err:
+                logger.warning(f"Rebase conflict encountered: {rebase_err}. Aborting rebase...")
+                try:
+                    repo.git.rebase("--abort")
+                except Exception:
+                    pass
     except Exception as fetch_err:
         logger.warning(f"Remote fetch/rebase warning: {fetch_err}")
 
@@ -295,26 +315,25 @@ def run_maintenance():
         repo = Repo(REPO_DIR)
         if repo.bare:
             logger.error("Git repository is bare. Aborting.")
-            sys.exit(1)
+            return False
 
         # Ensure active branch is target branch (main)
         try:
-            current_branch = repo.active_branch.name
-            if current_branch != TARGET_BRANCH:
-                logger.info(f"Switching branch from '{current_branch}' to '{TARGET_BRANCH}' for maintenance operations...")
+            if repo.head.is_detached or repo.active_branch.name != TARGET_BRANCH:
+                logger.info(f"Switching branch to '{TARGET_BRANCH}' for maintenance operations...")
                 repo.git.checkout(TARGET_BRANCH)
         except Exception as branch_err:
             logger.warning(f"Branch verification failed: {branch_err}. Attempting checkout to '{TARGET_BRANCH}'...")
             repo.git.checkout(TARGET_BRANCH)
     except Exception as e:
         logger.error(f"Failed to initialize Git repository at {REPO_DIR}: {e}")
-        sys.exit(1)
+        return False
 
     # 1. Determine Initial State & Setup Targets
     initial_state = determine_current_state()
     logger.info(f"Initial detected repository state: '{initial_state}'")
 
-    target_contributions = random.randint(8, 10)
+    target_contributions = 8
     logger.info(f"Targeting {target_contributions} contributions (commits) for this run...")
 
     all_targets = []
@@ -343,7 +362,7 @@ def run_maintenance():
     modified_files_all = []
     target_idx = 0
 
-    # 2. Loop to Generate 8 to 10 Contributions (Insertions & Deletions)
+    # 2. Loop to Generate Contributions (Insertions & Deletions)
     for step in range(1, target_contributions + 1):
         lang, file_path = all_targets[target_idx % len(all_targets)]
         target_idx += 1
@@ -368,9 +387,20 @@ def run_maintenance():
                     modified_files_all.append(file_path)
                     logger.info(f"Contribution {step}/{target_contributions} (Insertion): Committed addition for {os.path.basename(file_path)}")
 
+    # 3. Final Guarantee Cleanup: Ensure ALL target files are left clean of dead code markers
+    for lang, file_path in all_targets:
+        if file_has_markers(file_path, lang):
+            logger.info(f"Final cleanup guarantee: Removing residual dead code from {os.path.basename(file_path)}")
+            if remove_all_inserted_blocks(file_path, lang):
+                commit_msg = random.choice(commit_messages_cleanup)
+                if stage_and_commit(repo, [file_path], commit_msg):
+                    total_committed += 1
+                    modified_files_all.append(file_path)
+                    logger.info(f"Final Cleanup: Committed cleanup for {os.path.basename(file_path)}")
+
     logger.info(f"Total contributions committed in this run: {total_committed}")
 
-    # 3. Check Unpushed Commits Count
+    # 4. Check Unpushed Commits Count
     unpushed_count = "0"
     try:
         active_branch = repo.active_branch.name
@@ -378,7 +408,7 @@ def run_maintenance():
     except Exception as e:
         logger.warning(f"Could not calculate unpushed commits count: {e}")
 
-    # 4. Push if committed or unpushed commits exist
+    # 5. Push if committed or unpushed commits exist
     pushed = False
     if total_committed > 0 or unpushed_count != "0":
         logger.info(f"Unpushed commits present ({unpushed_count}). Proceeding to push...")
@@ -386,7 +416,7 @@ def run_maintenance():
     else:
         logger.info("No new commits or unpushed changes. Skipping push.")
 
-    # 5. Record Last Run Metadata in Git Config
+    # 6. Record Last Run Metadata in Git Config
     try:
         today_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         final_state = determine_current_state()
@@ -403,17 +433,17 @@ def run_maintenance():
     logger.info(f"Maintenance Run Completed in {duration:.2f} seconds.")
     logger.info("==================================================")
 
-    # Return non-zero exit code if modifications occurred but commit/push failed completely
     if modified_files_all and total_committed == 0 and unpushed_count != "0" and not pushed:
         logger.error("Execution finished with uncommitted or unpushed changes.")
-        sys.exit(1)
+        return False
 
-    sys.exit(0)
+    return True
 
 
 if __name__ == "__main__":
     try:
-        run_maintenance()
+        success = run_maintenance()
+        sys.exit(0 if success else 1)
     except Exception as fatal_err:
         logger.critical(f"Fatal unhandled exception in maintenance automation: {fatal_err}", exc_info=True)
         sys.exit(1)
