@@ -199,11 +199,11 @@ def ensure_git_identity(repo):
 
     with repo.config_writer() as config:
         if not name or not name.strip():
-            config.set_value("user", "name", "Maintenance Automation Bot")
-            logger.info("Set fallback Git user.name: Maintenance Automation Bot")
+            config.set_value("user", "name", "Ishan Nerli")
+            logger.info("Set Git user.name: Ishan Nerli")
         if not email or not email.strip():
-            config.set_value("user", "email", "maintenance-bot@users.noreply.github.com")
-            logger.info("Set fallback Git user.email")
+            config.set_value("user", "email", "119749064+CipheR2508@users.noreply.github.com")
+            logger.info("Set Git user.email: 119749064+CipheR2508@users.noreply.github.com")
 
 
 def stage_and_commit(repo, modified_files, commit_message):
