@@ -39,67 +39,12 @@ async def chat_with_assistant(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # --- MAINTENANCE_DEAD_CODE_START ---
-class UnusedPythonClass:
+def unused_python_function():
+    """Unused docstring for maintenance."""
     pass
 if False:
     print("Daily Maintenance run.")
-# Maintenance routine marker
-UNUSED_FLAG = True
+class UnusedPythonClass:
+    pass
 # --- MAINTENANCE_DEAD_CODE_END ---
