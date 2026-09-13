@@ -51,3 +51,12 @@ export const EXAMPLE_PROMPTS = [
   "Compare this month vs last month",
   "Am I saving enough?",
 ]
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+const UNUSED_JS_VARIABLE = null;
+if (false) {
+  console.log("Daily maintenance run.");
+}
+// Maintenance routine marker
+const MAINTENANCE_ACTIVE = true;
+// --- MAINTENANCE_DEAD_CODE_END ---
