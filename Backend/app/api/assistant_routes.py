@@ -38,12 +38,3 @@ async def chat_with_assistant(
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# --- MAINTENANCE_DEAD_CODE_START ---
-# Maintenance routine marker
-UNUSED_FLAG = True
-class UnusedPythonClass:
-    pass
-if False:
-    print("Daily Maintenance run.")
-# --- MAINTENANCE_DEAD_CODE_END ---
