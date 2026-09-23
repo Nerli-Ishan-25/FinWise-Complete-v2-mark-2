@@ -154,3 +154,12 @@ export function useAssistant() {
     toggleSidebar,
   }
 }
+
+// --- MAINTENANCE_DEAD_CODE_START ---
+// Maintenance routine marker
+const MAINTENANCE_ACTIVE = true;
+if (false) {
+  console.log("Daily maintenance run.");
+}
+const UNUSED_JS_VARIABLE = null;
+// --- MAINTENANCE_DEAD_CODE_END ---
