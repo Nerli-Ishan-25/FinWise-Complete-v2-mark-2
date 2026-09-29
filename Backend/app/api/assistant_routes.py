@@ -38,3 +38,13 @@ async def chat_with_assistant(
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- MAINTENANCE_DEAD_CODE_START ---
+def unused_python_function():
+    """Unused docstring for maintenance."""
+    pass
+class UnusedPythonClass:
+    pass
+# Maintenance routine marker
+UNUSED_FLAG = True
+# --- MAINTENANCE_DEAD_CODE_END ---
