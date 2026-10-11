@@ -1,6 +1,6 @@
 # 📘 FinWise AI Finance
 
-Welcome to **FinWise**, your AI-powered wealth management and budgeting companion. This repository contains the complete ecosystem, including an intelligent financial tracking backend, a responsive React frontend, and related AI assistant features.
+Welcome to **FinWise**, your AI-powered wealth management and budgeting companion. This repository contains the complete ecosystem, including an intelligent financial tracking backend, a responsive React frontend, and related AI assistant features..
 
 ## 📷 App Demo Preview
 
