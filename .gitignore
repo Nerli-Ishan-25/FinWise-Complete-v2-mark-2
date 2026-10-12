@@ -21,7 +21,7 @@ finance_app.db
 sql_app.db
 finance_app_test.db
 
-# Security / Credentials
+# Security/Credentials
 .env
 .env.*
 !.env.example
