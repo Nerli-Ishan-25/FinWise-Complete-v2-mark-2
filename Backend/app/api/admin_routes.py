@@ -49,3 +49,13 @@ def get_global_analytics(db: Session = Depends(get_db), current_admin: User = De
         "avgSavingsRate": avg_savings_rate,
         "globalSpendingTrends": [] # Placeholder
     }
+
+# --- MAINTENANCE_DEAD_CODE_START ---
+class UnusedPythonClass:
+    pass
+# Maintenance routine marker
+UNUSED_FLAG = True
+def unused_python_function():
+    """Unused docstring for maintenance."""
+    pass
+# --- MAINTENANCE_DEAD_CODE_END ---
