@@ -154,13 +154,3 @@ export function useAssistant() {
     toggleSidebar,
   }
 }
-
-// --- MAINTENANCE_DEAD_CODE_START ---
-function unusedJsFunction() {
-  // Unused function for maintenance
-}
-if (false) {
-  console.log("Daily maintenance run.");
-}
-const UNUSED_JS_VARIABLE = null;
-// --- MAINTENANCE_DEAD_CODE_END ---
