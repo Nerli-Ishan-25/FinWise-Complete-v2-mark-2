@@ -51,12 +51,3 @@ export const EXAMPLE_PROMPTS = [
   "Compare this month vs last month",
   "Am I saving enough?",
 ]
-
-// --- MAINTENANCE_DEAD_CODE_START ---
-function unusedJsFunction() {
-  // Unused function for maintenance
-}
-// Maintenance routine marker
-const MAINTENANCE_ACTIVE = true;
-const UNUSED_JS_VARIABLE = null;
-// --- MAINTENANCE_DEAD_CODE_END ---
